@@ -58,9 +58,9 @@ namespace Agent
 			return onto*Vector2.Dot(a, onto);
 		}
 
-		public static Vector2 Scale(this Vector2 v, float x, float y)
+		public static Vector3 Scale(this Vector3 v, float x, float y, float z)
 		{
-			return new Vector2(v.x*x, v.y*y);
+			return new Vector3(v.x*x, v.y*y, v.z*z);
 		}
 
 		public static float AngleBetween(this Vector2 v, Vector2 u)
@@ -68,23 +68,40 @@ namespace Agent
 			return (v.angle()-u.angle()).mod(-180, 180);
 		}
 
+		public static ContourVertex[] toContour(this IEnumerable<Vector3> vs)
+		{
+			return vs.Select(v=>new ContourVertex {Position = v.toVec3()}).ToArray();
+		}
+
 		public static Vector3[] edges(this Collider collider)
 		{
-			BoxCollider box = collider as BoxCollider;
-			if (box != null)
-			{
-				Vector3[] edges = new Vector3[4];
-				edges[0] = new Vector3( box.size.x/2,  box.size.z/2, 0);
-				edges[1] = new Vector3( box.size.x/2, -box.size.z/2, 0);
-				edges[2] = new Vector3(-box.size.x/2,  box.size.z/2, 0);
-				edges[3] = new Vector3(-box.size.x/2, -box.size.z/2, 0);
+			Vector3[] edges;
 
-				for (int i=0; i<4; i++)
-					edges[i] = box.transform.TransformPoint(box.center.projectDown()+edges[i].toVector2()).toVector2();
-				return edges;
+			if (collider is BoxCollider)
+			{
+				BoxCollider box = collider as BoxCollider;
+				edges = new Vector3[4];
+				edges[0] = box.size.Scale( .5f, 0,  .5f);
+				edges[1] = box.size.Scale( .5f, 0, -.5f);
+				edges[2] = box.size.Scale(-.5f, 0, -.5f);
+				edges[3] = box.size.Scale(-.5f, 0,  .5f);
+
+				for (int i=0; i<edges.Length; i++)
+					edges[i] = collider.transform.TransformPoint(box.center+edges[i]).Scale(1,0,1);
+			}
+			else if (collider is MeshCollider)
+			{
+				MeshCollider mesh = collider as MeshCollider;
+				edges = new Vector3[4];
+				edges[0] = mesh.bounds.extents.Scale( 1, 0,  1);
+				edges[1] = mesh.bounds.extents.Scale( 1, 0, -1);
+				edges[2] = mesh.bounds.extents.Scale(-1, 0, -1);
+				edges[3] = mesh.bounds.extents.Scale(-1, 0,  1);
 			}
 			else
-				throw new NotImplementedException("Collider2D.edges() only works for boxes");
+				throw new NotImplementedException("Collider.edges() only works for boxes");
+
+			return edges;
 		}
 
 		public static Vec3 toVec3(this Vector3 v)
@@ -114,7 +131,7 @@ namespace Agent
 				return edges;
 			}
 			else
-				throw new NotImplementedException("Collider2D.edges() only works for boxes");
+				throw new NotImplementedException("Collider.outerEdges() only works for boxes");
 		}
 		
 		public static Vector2 sign(this Vector2 v)

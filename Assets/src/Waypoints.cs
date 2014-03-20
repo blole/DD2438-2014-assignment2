@@ -11,7 +11,6 @@ namespace Agent
 		public bool showWaypoints;
 		public bool showNeighbors;
 		public float radius;
-		public Transform waypointMarker;
 		public List<Vector3> waypoints = new List<Vector3>();
 		public Dictionary<Vector3, List<Vector3>> neighbors = new Dictionary<Vector3, List<Vector3>>();
 		private Vector3 offset = Vector3.up * 0.01f;

@@ -12,7 +12,7 @@ namespace Agent
 
 		public bool showAreas;
 		private List<List<Vector2>> areas = new List<List<Vector2>>();
-		public ConvexArea convexAreaPrefab;
+		public MeshFilter areaPrefab;
 
 		void Start ()
 		{
@@ -36,32 +36,30 @@ namespace Agent
 			Vector3[] vertices = new Vector3[obstacles.Length*4];
 			Tess tess = new Tess();
 
+			tess.AddContour(GameObject.Find("floor").collider.edges().toContour());
+
 			for (int i=0; i<obstacles.Length; i++)
 			{
 				Vector3[] edges = obstacles[i].collider.edges();
 
 				for (int j=0; j<4; j++)
 					vertices[4*i+j] = edges[j];
-				tess.AddContour(edges.toVec3().Select(v=>new ContourVertex {Position = v}).ToArray(), ContourOrientation.CounterClockwise);
+				tess.AddContour(edges.toContour());
 			}
 
 			tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
 
-			ConvexArea area = ((ConvexArea)Instantiate(convexAreaPrefab));
+			MeshFilter area = ((MeshFilter)Instantiate(areaPrefab));
 			area.transform.parent = transform;
-			Mesh mesh = area.GetComponent<MeshFilter>().mesh;
+
+			Mesh mesh = new Mesh();
+
 			mesh.vertices = tess.Vertices.Select(v=>v.Position.toVector3()).ToArray();
 			mesh.uv = Enumerable.Repeat(Vector2.zero, mesh.vertexCount).ToArray();
 			mesh.triangles = tess.Elements;
-			//Debug.Log("vertexCount:"+vertices.Length);
-			//Debug.Log("triangleCount:"+tess.Elements.Length);
-			//Debug.Log(tess.Elements.Aggregate("triangles:", (s,i)=>s+" "+i));
+
 			mesh.RecalculateNormals();
-
-
-			//List<Vector3> wps = GameObject.Find("waypoints").GetComponent<Waypoints>().waypoints;
-			//foreach (Vector3 wp in wps)
-			//	Debug.Log(area.TryAddPoint(wp));
+			area.mesh = mesh;
 		}
 	}
 }
