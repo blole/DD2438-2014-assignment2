@@ -32,34 +32,37 @@ namespace Agent
 			foreach (Transform t in transform)
 				DestroyImmediate(t.gameObject);
 
-			GameObject[] obstacles = GameObject.FindGameObjectsWithTag("obstacle");
-			Vector3[] vertices = new Vector3[obstacles.Length*4];
-			Tess tess = new Tess();
+			Tess floor = getFloorTess();
 
-			tess.AddContour(GameObject.Find("floor").collider.edges().toContour());
-
-			for (int i=0; i<obstacles.Length; i++)
+			if (showAreas)
 			{
-				Vector3[] edges = obstacles[i].collider.edges();
-
-				for (int j=0; j<4; j++)
-					vertices[4*i+j] = edges[j];
-				tess.AddContour(edges.toContour());
+				MeshFilter floorArea = ((MeshFilter)Instantiate(areaPrefab));
+				floorArea.transform.parent = transform;
+				floorArea.mesh = newMesh(floor.Vertices.toVector3(), floor.Elements);
 			}
-
-			tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
-
-			MeshFilter area = ((MeshFilter)Instantiate(areaPrefab));
-			area.transform.parent = transform;
-
+		}
+		
+		private Mesh newMesh(Vector3[] vertices, int[] triangles)
+		{
 			Mesh mesh = new Mesh();
-
-			mesh.vertices = tess.Vertices.Select(v=>v.Position.toVector3()).ToArray();
-			mesh.uv = Enumerable.Repeat(Vector2.zero, mesh.vertexCount).ToArray();
-			mesh.triangles = tess.Elements;
-
+			mesh.vertices = vertices;
+			mesh.uv = Enumerable.Repeat(Vector2.zero, vertices.Length).ToArray();
+			mesh.triangles = triangles;
 			mesh.RecalculateNormals();
-			area.mesh = mesh;
+			return mesh;
+		}
+		
+		Tess getFloorTess()
+		{
+			Tess tess = new Tess();
+			
+			tess.AddContour(GameObject.Find("floor").collider.edges().toContour());
+			
+			foreach (GameObject obstacle in GameObject.FindGameObjectsWithTag("obstacle"))
+				tess.AddContour(obstacle.collider.edges().toContour());
+			
+			tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
+			return tess;
 		}
 	}
 }

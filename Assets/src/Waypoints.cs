@@ -58,7 +58,7 @@ namespace Agent
 				{
 					Vector3 c = waypoint+offset;
 					for (int i=0; i<segments; i++)
-						Debug.DrawLine(c+Vector3.forward.turn(360f/segments*i)*radius, c+Vector3.forward.turn(360f/segments*(i+1))*radius, Color.green);
+						Debug.DrawLine(c+Vector2.up.turn(360f/segments*i).toVector3()*radius, c+Vector2.up.turn(360f/segments*(i+1)).toVector3()*radius, Color.green);
 				}
 			}
 			if (showNeighbors)
