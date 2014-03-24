@@ -68,11 +68,21 @@ namespace Agent
 			return (v.angle()-u.angle()).mod(-180, 180);
 		}
 
+		public static Vector3[] toVector3(this ContourVertex[] vs)
+		{
+			return vs.Select(v=>v.Position.toVector3()).ToArray();
+		}
+
 		public static ContourVertex[] toContour(this IEnumerable<Vector3> vs)
 		{
 			return vs.Select(v=>new ContourVertex {Position = v.toVec3()}).ToArray();
 		}
-
+		
+		public static ContourVertex[] toContour(this IEnumerable<Vector2> vs)
+		{
+			return vs.Select(v=>new ContourVertex {Position = v.toVec3()}).ToArray();
+		}
+		
 		public static Vector3[] edges(this Collider collider)
 		{
 			Vector3[] edges;
@@ -81,10 +91,10 @@ namespace Agent
 			{
 				BoxCollider box = collider as BoxCollider;
 				edges = new Vector3[4];
-				edges[0] = box.size.Scale( .5f, 0,  .5f);
-				edges[1] = box.size.Scale( .5f, 0, -.5f);
-				edges[2] = box.size.Scale(-.5f, 0, -.5f);
-				edges[3] = box.size.Scale(-.5f, 0,  .5f);
+				edges[0] = box.size.Scale(-.5f, 0,  .5f);
+				edges[1] = box.size.Scale( .5f, 0,  .5f);
+				edges[2] = box.size.Scale( .5f, 0, -.5f);
+				edges[3] = box.size.Scale(-.5f, 0, -.5f);
 
 				for (int i=0; i<edges.Length; i++)
 					edges[i] = collider.transform.TransformPoint(box.center+edges[i]).Scale(1,0,1);
@@ -93,10 +103,10 @@ namespace Agent
 			{
 				MeshCollider mesh = collider as MeshCollider;
 				edges = new Vector3[4];
-				edges[0] = mesh.bounds.extents.Scale( 1, 0,  1);
-				edges[1] = mesh.bounds.extents.Scale( 1, 0, -1);
-				edges[2] = mesh.bounds.extents.Scale(-1, 0, -1);
-				edges[3] = mesh.bounds.extents.Scale(-1, 0,  1);
+				edges[0] = mesh.bounds.extents.Scale(-1, 0,  1);
+				edges[1] = mesh.bounds.extents.Scale( 1, 0,  1);
+				edges[2] = mesh.bounds.extents.Scale( 1, 0, -1);
+				edges[3] = mesh.bounds.extents.Scale(-1, 0, -1);
 			}
 			else
 				throw new NotImplementedException("Collider.edges() only works for boxes");
@@ -104,9 +114,34 @@ namespace Agent
 			return edges;
 		}
 
+		public static Rectangle rect(this Collider collider)
+		{
+			if (collider is BoxCollider)
+			{
+				BoxCollider box = collider as BoxCollider;
+				Vector3[] edges = new Vector3[4];
+				edges[0] = box.size.Scale(-.5f, 0,  .5f);
+				edges[1] = box.size.Scale( .5f, 0,  .5f);
+				edges[2] = box.size.Scale( .5f, 0, -.5f);
+				edges[3] = box.size.Scale(-.5f, 0, -.5f);
+				
+				for (int i=0; i<edges.Length; i++)
+					edges[i] = collider.transform.TransformPoint(box.center+edges[i]).Scale(1,0,1);
+
+				return new Rectangle(edges[0].projectDown(), edges[1].projectDown(), edges[2].projectDown(), edges[3].projectDown());
+			}
+			else
+				throw new NotImplementedException("Collider.edges() only works for boxes");
+		}
+
 		public static Vec3 toVec3(this Vector3 v)
 		{
 			return new Vec3 {X=v.x, Y=v.y, Z=v.z};
+		}
+		
+		public static Vec3 toVec3(this Vector2 v)
+		{
+			return new Vec3 {X=v.x, Z=v.y};
 		}
 		
 		public static Vec3[] toVec3(this Vector3[] vs)
@@ -149,7 +184,12 @@ namespace Agent
 		{
 			return Mathf.Atan2(v.y, v.x)*180/Mathf.PI;
 		}
-
+		
+		public static float angle(this Vector3 v)
+		{
+			return Mathf.Atan2(v.y, v.z)*180/Mathf.PI;
+		}
+		
 		public static float distance(this Vector2 v, Vector2 u)
 		{
 			return (v-u).magnitude;
