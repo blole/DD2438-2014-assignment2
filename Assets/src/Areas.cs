@@ -22,7 +22,8 @@ namespace Agent
 #if UNITY_EDITOR
 		void Update ()
 		{
-			updateAreas();
+			if (Application.isEditor)
+				updateAreas();
 		}
 #endif
 

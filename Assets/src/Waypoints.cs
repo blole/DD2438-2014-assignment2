@@ -23,8 +23,11 @@ namespace Agent
 #if UNITY_EDITOR
 		void Update ()
 		{
-			updateWaypoints (radius);
-			maybeShowWaypoints ();
+			if (Application.isEditor)
+			{
+				updateWaypoints (radius);
+				maybeShowWaypoints ();
+			}
 		}
 #endif
 

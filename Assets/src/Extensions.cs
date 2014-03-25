@@ -99,6 +99,11 @@ namespace Agent
 			return new Vector3(v.x*x, v.y*y, v.z*z);
 		}
 		
+		public static Vector3 scale(this Vector3 v, Vector3 u)
+		{
+			return v.scale(u.x, u.y, u.z);
+		}
+		
 		public static Vector2 scale(this Vector2 v, float x, float y)
 		{
 			return new Vector2(v.x*x, v.y*y);
