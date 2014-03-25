@@ -13,10 +13,8 @@ namespace Agent
 		public bool isEndPoint {get{return index == -1; }}
 
 		public Waypoint(Vector3 pos)
-		{
-			this.pos = pos;
-			this.index = -1;
-		}
+			: this (pos, -1)
+		{}
 
 		public Waypoint(Vector3 pos, int index)
 		{

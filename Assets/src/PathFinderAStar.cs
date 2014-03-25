@@ -11,16 +11,19 @@ namespace Agent
 		static public LinkedList<Waypoint> find(Vector3 start, Vector3 goal)
 		{
 			float radius = Waypoints.radius;
-			if (Physics2D.OverlapCircleAll(goal, radius).Any(o=>o.CompareTag("obstacle")))
+			if (!PhysicsHelper.isClear(goal, radius))
 				return null;
 
+			if (PhysicsHelper.isClearPath(start, goal, Waypoints.radius))
+				return new PathStep(new Waypoint(goal)).toPath();
+			
 			bool[] visited = new bool[Waypoints.waypoints.Count];
 			PriorityQueue<float, PathStep> queue = new PriorityQueue<float, PathStep>();
 
 			foreach (Waypoint waypoint in Waypoints.waypoints)
 			{
-				if (Waypoints.isClearPath(start, waypoint.pos, Waypoints.radius))
-					queue.Enqueue((start-waypoint.pos).magnitude, new PathStep(waypoint));
+				if (PhysicsHelper.isClearPath(start, waypoint.pos, Waypoints.radius))
+					queue.Enqueue((start-waypoint.pos).projectDown().magnitude+(waypoint.pos-goal).projectDown().magnitude, new PathStep(waypoint));
 			}
 
 			while (!queue.IsEmpty)
@@ -28,14 +31,14 @@ namespace Agent
 				PathStep step = queue.Dequeue();
 				visited[step.wp.index] = true;
 				
-				if (Waypoints.isClearPath(step.wp.pos, goal, radius))
+				if (PhysicsHelper.isClearPath(step.wp.pos, goal, radius))
 				    return new PathStep(step, new Waypoint(goal)).toPath();
 				foreach (Waypoint neighbor in Waypoints.neighbors[step.wp])
 				{
 					if (!visited[neighbor.index])
 					{
 						PathStep next = new PathStep(step, neighbor);
-						queue.Enqueue(next.totalLength + (next.wp.pos-goal).magnitude, next);
+						queue.Enqueue(next.totalLength + (next.wp.pos-goal).projectDown().magnitude, next);
 					}
 				}
 			}
@@ -61,7 +64,7 @@ namespace Agent
 			{
 				this.previous = previous;
 				this.wp = wp;
-				this.totalLength = previous.totalLength+(previous.wp.pos-wp.pos).magnitude;
+				this.totalLength = previous.totalLength+(previous.wp.pos-wp.pos).projectDown().magnitude;
 			}
 			
 			public LinkedList<Waypoint> toPath()

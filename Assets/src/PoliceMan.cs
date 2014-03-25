@@ -18,7 +18,6 @@ namespace Agent
 		{
 			if (path.Count > 0)
 			{
-				Debug.Log(moveToward(path.First().pos));
 				if (moveToward(path.First().pos))
 					path.RemoveFirst();
 			}
@@ -31,14 +30,11 @@ namespace Agent
 			}
 		}
 
-		void NavigateTo(Vector2 to)
+		void NavigateTo(Vector3 to)
 		{
-			LinkedList<Waypoint> path = PathFinderAStar.find(transform.position, to.toVector3());
+			LinkedList<Waypoint> path = PathFinderAStar.find(transform.position, to);
 			if (path != null)
-			{
-				Debug.Log(path.Count);
 				this.path = path;
-			}
 		}
 
 		protected bool moveToward(Vector3 goal)

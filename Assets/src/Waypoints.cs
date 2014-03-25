@@ -49,15 +49,10 @@ namespace Agent
 
 				foreach (Waypoint u in waypoints)
 				{
-					if (v != u && isClearPath(v.pos, u.pos, radius))
+					if (v != u && PhysicsHelper.isClearPath(v.pos, u.pos, radius))
 						neighbors[v].Add(u);
 				}
 			}
-		}
-
-		public static bool isClearPath(Vector3 v, Vector3 u, float radius)
-		{
-			return !Physics.SphereCastAll(new Ray(v, u-v), radius, (u-v).magnitude).Any(hit=>hit.transform.CompareTag("obstacle"));
 		}
 
 		void maybeShowWaypoints()
