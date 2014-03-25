@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Agent
 {
 	[ExecuteInEditMode]
-	public class Police : MonoBehaviour {
+	public class PoliceSpawner : MonoBehaviour {
 		public int policeCount;
 		public Transform policePrefab;
 
@@ -38,26 +38,21 @@ namespace Agent
 			}
 
 			Vector2 maxPos = GameObject.Find("floor").collider.bounds.extents.projectDown();
-			float policeRadius = (policePrefab.collider as SphereCollider).radius;
+			float policeRadius = (policePrefab.collider as SphereCollider).radius*policePrefab.localScale.magnitude;
 			maxPos -= Vector2.one*policeRadius;
 
 			while (policeCount < newCount)
 			{
-				int tries;
-				for (tries=0; tries<5; tries++)
-				{
-					Vector3 pos = maxPos.scale(UnityEngine.Random.Range(-1f,1f), UnityEngine.Random.Range(-1f,1f)).toVector3();
-
-					if (!Physics.CheckSphere(pos, policeRadius))
-					{
-						Transform t = (Transform) Instantiate(policePrefab, pos + Vector3.up*policeRadius, UnityEngine.Random.rotationUniform);
-						t.parent = transform;
-						policeCount++;
-						break;
-					}
-				}
-				if (tries == 5)
+				Vector3? pos = PhysicsHelper.randomCollisionFreePointOnFloor(policeRadius, 5);
+				
+				if (!pos.HasValue)
 					break;
+					
+				Transform t = (Transform) Instantiate(policePrefab,
+				                                      pos.Value + Vector3.up*/*t.up**/policeRadius,
+				                                      Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), Vector3.up));
+				t.parent = transform;
+				policeCount++;
 			}
 		}
 	}

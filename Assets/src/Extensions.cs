@@ -140,13 +140,23 @@ namespace Agent
 		{
 			return Quaternion.AngleAxis(degrees, new Vector3(0,0,1)) * v;
 		}
-
+		
 		public static Vector2 Clamp(this Vector2 v, float max)
 		{
 			return v.normalized*Mathf.Clamp(v.magnitude, 0, max);
 		}
 		
 		public static Vector2 Clamp(this Vector2 v, float min, float max)
+		{
+			return v.normalized*Mathf.Clamp(v.magnitude, min, max);
+		}
+		
+		public static Vector3 Clamp(this Vector3 v, float max)
+		{
+			return v.normalized*Mathf.Clamp(v.magnitude, 0, max);
+		}
+		
+		public static Vector3 Clamp(this Vector3 v, float min, float max)
 		{
 			return v.normalized*Mathf.Clamp(v.magnitude, min, max);
 		}

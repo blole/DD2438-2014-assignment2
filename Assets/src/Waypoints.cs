@@ -10,14 +10,16 @@ namespace Agent
 	public class Waypoints : MonoBehaviour {
 		public bool showWaypoints;
 		public bool showNeighbors;
-		public float radius;
-		public List<Vector3> waypoints = new List<Vector3>();
-		public Dictionary<Vector3, List<Vector3>> neighbors = new Dictionary<Vector3, List<Vector3>>();
+		public float vehicleRadius;
+		public static float radius;
+		public static List<Waypoint> waypoints = new List<Waypoint>();
+		public static Dictionary<Waypoint, List<Waypoint>> neighbors = new Dictionary<Waypoint, List<Waypoint>>();
 		private Vector3 offset = Vector3.up * 0.01f;
 
 		void Start()
 		{
-			updateWaypoints (radius);
+			radius = vehicleRadius;
+			updateWaypoints();
 		}
 
 #if UNITY_EDITOR
@@ -25,31 +27,37 @@ namespace Agent
 		{
 			if (Application.isEditor)
 			{
-				updateWaypoints (radius);
-				maybeShowWaypoints ();
+				radius = vehicleRadius;
+				updateWaypoints();
+				maybeShowWaypoints();
 			}
 		}
 #endif
 
-		void updateWaypoints(float radius)
+		void updateWaypoints()
 		{
 			waypoints.Clear();
 			neighbors.Clear();
 
 			foreach (GameObject go in GameObject.FindGameObjectsWithTag("obstacle"))
-				waypoints.AddRange(go.transform.GetComponent<Collider>().outerEdges(radius*1.01f));
+				waypoints.AddRange(go.transform.GetComponent<Collider>().outerEdges(radius*1.01f).Select(v=>new Waypoint(v, waypoints.Count)));
 
-			foreach (Vector3 w in waypoints)
+			foreach (Waypoint v in waypoints)
 			{
-				if (!neighbors.ContainsKey(w))
-					neighbors[w] = new List<Vector3>();
+				if (!neighbors.ContainsKey(v))
+					neighbors[v] = new List<Waypoint>();
 
-				foreach (Vector3 u in waypoints)
+				foreach (Waypoint u in waypoints)
 				{
-					if (w != u && !Physics.SphereCast(new Ray(w, u-w), radius, (u-w).magnitude))
-						neighbors[w].Add(u);
+					if (v != u && isClearPath(v.pos, u.pos, radius))
+						neighbors[v].Add(u);
 				}
 			}
+		}
+
+		public static bool isClearPath(Vector3 v, Vector3 u, float radius)
+		{
+			return !Physics.SphereCastAll(new Ray(v, u-v), radius, (u-v).magnitude).Any(hit=>hit.transform.CompareTag("obstacle"));
 		}
 
 		void maybeShowWaypoints()
@@ -57,20 +65,20 @@ namespace Agent
 			if (showWaypoints)
 			{
 				int segments = 16;
-				foreach (Vector3 waypoint in waypoints)
+				foreach (Waypoint waypoint in waypoints)
 				{
-					Vector3 c = waypoint+offset;
+					Vector3 c = waypoint.pos+offset;
 					for (int i=0; i<segments; i++)
 						Debug.DrawLine(c+Vector2.up.turn(360f/segments*i).toVector3()*radius, c+Vector2.up.turn(360f/segments*(i+1)).toVector3()*radius, Color.green);
 				}
 			}
 			if (showNeighbors)
 			{
-				foreach (KeyValuePair<Vector3, List<Vector3>> pair in neighbors)
+				foreach (KeyValuePair<Waypoint, List<Waypoint>> pair in neighbors)
 				{
-					Vector3 w = pair.Key;
-					foreach (Vector3 u in pair.Value)
-						Debug.DrawLine(w+offset, u+offset, Color.green);
+					Waypoint w = pair.Key;
+					foreach (Waypoint u in pair.Value)
+						Debug.DrawLine(w.pos+offset, u.pos+offset, Color.green);
 				}
 			}
 		}
