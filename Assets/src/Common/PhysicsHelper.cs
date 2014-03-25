@@ -39,12 +39,12 @@ namespace Agent
 		
 		public static bool isClearPath(Vector3 v, Vector3 u, float radius)
 		{
-			return !Physics.SphereCastAll(new Ray(v, u-v), radius, (u-v).magnitude).Any(hit=>hit.transform.CompareTag("obstacle"));
+			return !Physics.SphereCastAll(new Ray(v, u-v), radius, (u-v).magnitude).Any(hit=>hit.transform.tag == "obstacle");
 		}
 		
 		public static bool isClear(Vector3 v, float radius)
 		{
-			return !Physics.OverlapSphere(v, radius).Any(o=>o.CompareTag("obstacle"));
+			return !Physics.OverlapSphere(v, radius).Any(o=>o.tag == "obstacle");
 		}
 	}
 }

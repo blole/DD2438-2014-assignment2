@@ -6,8 +6,7 @@ using System.Collections.Generic;
 
 namespace Agent
 {
-	public class PoliceMan : MonoBehaviour {
-		public float maxVelocity = 1;
+	public class Police : MonoBehaviour {
 		private LinkedList<Waypoint> path = new LinkedList<Waypoint>();
 
 		void Start()
@@ -40,14 +39,14 @@ namespace Agent
 		protected bool moveToward(Vector3 goal)
 		{
 			Vector3 toGoal = (goal-transform.position).projectDown().toVector3();
-			if (toGoal.magnitude > maxVelocity*Time.deltaTime)
+			if (toGoal.magnitude > GetComponent<Vehicle>().maxVelocity*Time.deltaTime)
 			{
-				rigidbody.velocity = toGoal.Clamp(maxVelocity, maxVelocity);
+				GetComponent<Vehicle>().setDesiredDirection(0, toGoal, 0.1f);
 				return false;
 			}
 			else
 			{
-				rigidbody.velocity = Vector3.zero;
+				GetComponent<Vehicle>().setDesiredDirection(0, Vector3.zero, 0);
 				return true;
 			}
 		}
