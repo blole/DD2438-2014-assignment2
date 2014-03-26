@@ -90,6 +90,12 @@ namespace Agent
 				throw new NotImplementedException("Collider.outerEdges() only works for boxes");
 		}
 
+		public static IEnumerable<Transform> children(this Transform transform)
+		{
+			foreach (Transform child in transform)
+				yield return child;
+		}
+
 
 
 

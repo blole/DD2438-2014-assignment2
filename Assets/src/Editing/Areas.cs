@@ -13,7 +13,7 @@ namespace Agent
 		public bool showAreas;
 		private List<List<Vector2>> areas = new List<List<Vector2>>();
 		public MeshFilter areaPrefab;
-
+		
 		void Start ()
 		{
 			updateAreas();
@@ -22,7 +22,7 @@ namespace Agent
 #if UNITY_EDITOR
 		void Update ()
 		{
-			if (Application.isEditor)
+			if (!Application.isPlaying)
 				updateAreas();
 		}
 #endif

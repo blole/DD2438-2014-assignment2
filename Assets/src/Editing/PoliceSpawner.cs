@@ -11,15 +11,10 @@ namespace Agent
 		public int policeCount;
 		public Transform policePrefab;
 
-		void Start()
-		{
-			setPoliceCount(policeCount);
-		}
-		
 		#if UNITY_EDITOR
 		void Update ()
 		{
-			if (Application.isEditor)
+			if (!Application.isPlaying)
 				setPoliceCount(policeCount);
 		}
 		#endif
@@ -37,6 +32,14 @@ namespace Agent
 				policeCount--;
 			}
 
+			List<Vector3> positions = transform.children().Select(t=>t.position).ToList();
+
+			while(transform.childCount > 0)
+				DestroyImmediate(transform.GetChild(0).gameObject);
+
+			foreach (Vector3 pos in positions)
+				addPoliceAt(pos);
+
 			Vector2 maxPos = GameObject.Find("floor").collider.bounds.extents.projectDown();
 			float policeRadius = (policePrefab.collider as SphereCollider).radius*policePrefab.localScale.magnitude;
 			maxPos -= Vector2.one*policeRadius;
@@ -45,15 +48,24 @@ namespace Agent
 			{
 				Vector3? pos = PhysicsHelper.randomCollisionFreePointOnFloor(policeRadius, 5);
 				
-				if (!pos.HasValue)
+				if (pos.HasValue)
+				{
+					addPoliceAt(pos.Value);
+					policeCount++;
+				}
+				else
 					break;
-					
-				Transform t = (Transform) Instantiate(policePrefab,
-				                                      pos.Value + Vector3.up*/*t.up**/policeRadius,
-				                                      Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), Vector3.up));
-				t.parent = transform;
-				policeCount++;
 			}
+		}
+
+		void addPoliceAt(Vector3 pos)
+		{
+			pos.y = Waypoints.radius;
+			Quaternion q = Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), Vector3.up);
+			Transform t = (Transform) Instantiate(policePrefab, pos, q);
+
+			t.localScale = Vector3.one*Waypoints.radius*2;
+			t.parent = transform;
 		}
 	}
 }
