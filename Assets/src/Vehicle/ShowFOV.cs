@@ -16,7 +16,7 @@ namespace Agent
 
 		private MeshFilter fovMesh;
 
-		void Update ()
+		void LateUpdate ()
 		{
 			if (show)
 				updateFovMesh();
@@ -30,6 +30,7 @@ namespace Agent
 			Vector3 pos = getFovMesh().transform.position;
 			pos.y = 0.0025f;
 			getFovMesh().transform.position = transform.position.setY(0.0025f);
+			getFovMesh().transform.rotation = Quaternion.identity;
 
 			Mesh mesh = getFovMesh().mesh;
 			int[] tris = mesh.triangles;
