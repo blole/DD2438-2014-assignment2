@@ -14,7 +14,7 @@ namespace Agent
 		public bool recomputeAreas = false;
 		public bool showAreas;
 		public bool showGrid;
-		[Range(0.1f,20f)]
+		[Range(0.2f,20f)]
 		public float gridSize = 10f;
 		[Range(1,40)]
 		public int maximumConvexSize = 50;
