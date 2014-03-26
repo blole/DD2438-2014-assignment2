@@ -210,6 +210,22 @@ namespace Agent
 				}
 			}
 		}
+<<<<<<< HEAD
+=======
+
+		
+		
+		public Boolean isPointInsideObstacle(Vector3 point){
+			Boolean isOutside = true;
+			foreach(GameObject cube in GameObject.FindGameObjectsWithTag("obstacle")){
+				if(cube.renderer.bounds.Contains(point)){
+					isOutside = false;
+                    break;
+                }
+            }
+			return isOutside;
+        }
+
 		public int countNbVisibleFrom(Vector3 point, List<int> indexUncoveredArea){
 			int nbAreaVisible = 0;
 			for(int i=0;i<indexUncoveredArea.Count;i++){
@@ -246,5 +262,28 @@ namespace Agent
 			}
 		}
 
+//		private Mesh newMesh(Vector3[] vertices, int[] triangles)
+//		{
+//			Mesh mesh = new Mesh();
+//			mesh.vertices = vertices;
+//			mesh.uv = Enumerable.Repeat(Vector2.zero, vertices.Length).ToArray();
+//			mesh.triangles = triangles;
+//			mesh.RecalculateNormals();
+//			return mesh;
+//		}
+		
+//		Tess getFloorTess()
+//		{
+//			Tess tess = new Tess();
+//			
+//			tess.AddContour(GameObject.Find("floor").collider.edges().toContour());
+//			
+//			foreach (GameObject obstacle in GameObject.FindGameObjectsWithTag("obstacle"))
+//				tess.AddContour(obstacle.collider.edges().toContour());
+//			
+//			tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
+//			return tess;
+//		}
+>>>>>>> 3c6ca20daf29442a1e1f5e2261baec0c075922c4
 	}
 }

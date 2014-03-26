@@ -27,9 +27,7 @@ namespace Agent
 
 		void updateFovMesh()
 		{
-			Vector3 pos = getFovMesh().transform.position;
-			pos.y = 0.0025f;
-			getFovMesh().transform.position = transform.position.setY(0.0025f);
+			getFovMesh().transform.position = transform.position.setY(0.01f);
 			getFovMesh().transform.rotation = Quaternion.identity;
 
 			Mesh mesh = getFovMesh().mesh;

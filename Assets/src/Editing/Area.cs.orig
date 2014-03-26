@@ -14,9 +14,21 @@ namespace Agent
 		
 		public Area (Rect corners)
 		{
+<<<<<<< HEAD
 			this.corners = corners;
 			this.index = nbAreas;
 			nbAreas++;
+=======
+
+				public static int nbAreas = 0;
+				public int index;
+				public Rect corners;
+			
+				public Area (Rect corners)
+				{
+						this.corners = corners;
+						this.index = nbAreas;
+						nbAreas++;
 				}
 
 				public Vector3[] getAreaCoord ()
@@ -35,6 +47,8 @@ namespace Agent
 						result [2] = topLeft;
 						result [3] = topRight;
 						return result;
+				}
+>>>>>>> 3c6ca20daf29442a1e1f5e2261baec0c075922c4
 		}
 	}
 }
