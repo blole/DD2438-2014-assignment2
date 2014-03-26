@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
@@ -12,19 +12,21 @@ namespace Agent
 
 		private bool previousRecomputeAreas = false;
 		public bool recomputeAreas = false;
+		public bool showPointsCoveringArea = false;
 		public bool showAreas;
 		public bool showGrid;
 		[Range(0.2f,20f)]
-		public float gridSize = 10f;
+		public float gridSize = 0.4f;
 		[Range(1,40)]
 		public int maximumConvexSize = 50;
+		public bool extraPoint = false;
 
 		private int nbRow;
 		private int nbCol;
 		private Vector3 bottomLeftOfTheGrid;
 		private Boolean[,] gridFreeSpace;
-		private List<Area> areas = new List<Area>();
-		private List<Vector2> pointsOfInterest = new List<Vector2>();
+		public List<Area> areas = new List<Area>();
+		public List<Vector3> setOfPointCoveringArea = new List<Vector3>();
 
 		void Start ()
 		{
@@ -79,84 +81,131 @@ namespace Agent
 			if(previousRecomputeAreas != recomputeAreas){
 				previousRecomputeAreas = recomputeAreas;
 				areas.Clear();
+				setOfPointCoveringArea.Clear();
 				Area.nbAreas = 0;
 
-			// Creation of the convex set cover
-			Boolean[,] coveredCells = new Boolean[nbRow, nbCol];
-			int nbCellRemaining = nbRow * nbCol;
-			for(int i=0;i<nbRow;i++){
-				for(int j=0;j<nbCol;j++){
-					coveredCells[i,j] = !gridFreeSpace[i,j];
-					if(!gridFreeSpace[i,j])
-						nbCellRemaining--;
-				}
-			}
-			
-			while (nbCellRemaining>0) {
-				// Find a yet uncovered cell p
-				int[] p = new int[2];
-				p[0] = -1;
+				// Creation of the convex set cover
+				Boolean[,] coveredCells = new Boolean[nbRow, nbCol];
+				int nbCellRemaining = nbRow * nbCol;
 				for(int i=0;i<nbRow;i++){
-					if(p[0]==-1){
-						for(int j=0;j<nbCol;j++){
-							if(!coveredCells[i,j]){
-								p[0] = i;
-								p[1] = j;
-								break;
+					for(int j=0;j<nbCol;j++){
+						coveredCells[i,j] = !gridFreeSpace[i,j];
+						if(!gridFreeSpace[i,j])
+							nbCellRemaining--;
+					}
+				}
+				
+				while (nbCellRemaining>0) {
+					// Find a yet uncovered cell p
+					int[] p = new int[2];
+					p[0] = -1;
+					for(int i=0;i<nbRow;i++){
+						if(p[0]==-1){
+							for(int j=0;j<nbCol;j++){
+								if(!coveredCells[i,j]){
+									p[0] = i;
+									p[1] = j;
+									break;
+								}
 							}
+						}
+					}
+
+					// Start growing a rectangle ci from p until it is bounded
+					// Grow in i croissant
+					int pi = p[0];
+					int pj = p[1];
+					int maxI = pi;
+					while(maxI < (nbRow-1) && (maxI-pi+1) < maximumConvexSize && !coveredCells[maxI+1,pj] && gridFreeSpace[maxI+1,pj]){
+						maxI++;
+					}
+
+					// Grow in j croissant
+					int maxJ = nbCol;
+					for(int k=pi;k<=maxI;k++){
+						int tmpMaxJ = pj;
+						while(tmpMaxJ < (nbCol-1) && (tmpMaxJ-pj+1) < maximumConvexSize && !coveredCells[k,tmpMaxJ+1] && gridFreeSpace[k,tmpMaxJ+1]){
+							tmpMaxJ++;
+						}
+						maxJ = (tmpMaxJ < maxJ) ? tmpMaxJ : maxJ;
+					}
+
+					// Add new rectangle to the convex set and mark covered cells as so
+					Rect rectArea = new Rect(bottomLeftOfTheGrid.x + pi*gridSize, bottomLeftOfTheGrid.z + pj*gridSize, (maxI-pi+1)*gridSize, (maxJ-pj+1)*gridSize);
+					areas.Add(new Area(rectArea));
+					nbCellRemaining -= ((maxI-pi+1)*(maxJ-pj+1));
+					for(int i=pi;i<=maxI;i++){
+						for(int j=pj;j<=maxJ;j++){
+							coveredCells[i,j] = true;
 						}
 					}
 				}
 
-				// Start growing a rectangle ci from p until it is bounded
-				// Grow in i croissant
-				int pi = p[0];
-				int pj = p[1];
-				int maxI = pi;
-				while(maxI < (nbRow-1) && (maxI-pi+1) < maximumConvexSize && !coveredCells[maxI+1,pj] && gridFreeSpace[maxI+1,pj]){
-					maxI++;
-				}
+				// Compute best set of points where the whole area is visible
 
-				// Grow in j croissant
-				int maxJ = nbCol;
-				for(int k=pi;k<=maxI;k++){
-					int tmpMaxJ = pj;
-					while(tmpMaxJ < (nbCol-1) && (tmpMaxJ-pj+1) < maximumConvexSize && !coveredCells[k,tmpMaxJ+1] && gridFreeSpace[k,tmpMaxJ+1]){
-						tmpMaxJ++;
-					}
-					maxJ = (tmpMaxJ < maxJ) ? tmpMaxJ : maxJ;
+				// Create set of potential point
+				List<Vector3> potentialPoint = new List<Vector3>();
+				for(int i=0; i<Waypoints.waypoints.Count;i++){
+					potentialPoint.Add(Waypoints.waypoints.ElementAt(i).pos);
 				}
-				print ("pi = " + pi + " pj = " + pj + " maxI = " + maxI + " maxJ = " + maxJ);
-
-				// Add new rectangle to the convex set and mark covered cells as so
-				Rect rectArea = new Rect(bottomLeftOfTheGrid.x + pi*gridSize, bottomLeftOfTheGrid.z + pj*gridSize, (maxI-pi+1)*gridSize, (maxJ-pj+1)*gridSize);
-				areas.Add(new Area(rectArea));
-				nbCellRemaining -= ((maxI-pi+1)*(maxJ-pj+1));
-				for(int i=pi;i<=maxI;i++){
-					for(int j=pj;j<=maxJ;j++){
-						print ("i,j = " + i + "," + j);
-						coveredCells[i,j] = true;
+				if(extraPoint){
+					for(int i=0;i<nbRow;i++){
+						for(int j=0;j<nbCol;j++){
+							potentialPoint.Add (bottomLeftOfTheGrid + new Vector3((i + 0.5f)*gridSize,0f,(j+0.5f)*gridSize));
+						}
 					}
 				}
-			}
-                
+
+				List<int> indexUncoveredAreas = new List<int>();
+				for(int i=0;i<Area.nbAreas;i++){
+					indexUncoveredAreas.Add (i);
+				}
+
+				while(indexUncoveredAreas.Any()){
+					// Find the biggest visible area from interest points
+					int bestNbVisible = 0;
+					int bestIndex = -1;
+					for(int i=1;i<potentialPoint.Count;i++){
+						int tmpNbVisible = countNbVisibleFrom(potentialPoint.ElementAt(i),indexUncoveredAreas);
+						if(tmpNbVisible > bestNbVisible){
+							bestIndex = i;
+							bestNbVisible = tmpNbVisible;
+						}
+					}
+					// Add the point to the set of points
+					Vector3 bestPos = potentialPoint.ElementAt(bestIndex);
+					setOfPointCoveringArea.Add(bestPos);
+					removeSeenArea(bestPos,indexUncoveredAreas);
+				}
+
+				
+//				for(int i=0;i<setOfPointCoveringArea.Count;i++){
+//					print (setOfPointCoveringArea.ElementAt(i));
+//				}
+//				print ("TEST = " + setOfPointCoveringArea.Count);
+
+
 			}
 
 			if(showAreas){
 				for(int i=0;i<Area.nbAreas;i++){
 					Area currentArea = areas[i];
-					float xmin = currentArea.corners.xMin;
-					float ymin = currentArea.corners.yMin;
-					float xmax = currentArea.corners.xMax;
-					float ymax = currentArea.corners.yMax;
-					Vector3 bottomLeft = new Vector3(xmin,0.02f,ymin);
-					Vector3 bottomRight = new Vector3(xmax,0.02f,ymin);
-					Vector3 topLeft = new Vector3(xmin,0.02f,ymax);
-					Vector3 topRight = new Vector3(xmax,0.02f,ymax);
-					Debug.DrawLine(bottomLeft,bottomRight,Color.red);
-					Debug.DrawLine(bottomLeft,topLeft,Color.red);
-					Debug.DrawLine(bottomRight,topRight,Color.red);
-					Debug.DrawLine(topLeft,topRight,Color.red);
+					Vector3[] areaCoord = currentArea.getAreaCoord();
+					Debug.DrawLine(areaCoord[0],areaCoord[1],Color.red);
+					Debug.DrawLine(areaCoord[0],areaCoord[2],Color.red);
+					Debug.DrawLine(areaCoord[1],areaCoord[3],Color.red);
+					Debug.DrawLine(areaCoord[2],areaCoord[3],Color.red);
+				}
+			}
+
+			if(showPointsCoveringArea){
+				int segments = 16;
+				for(int k=0; k<setOfPointCoveringArea.Count;k++){
+					Vector3 c = setOfPointCoveringArea.ElementAt(k)+Vector3.up * 0.01f;
+					for (int i=0; i<segments; i++){
+						Debug.DrawLine(c+Vector2.up.turn(360f/segments*i).toVector3()*Waypoints.radius, c+Vector2.up.turn(360f/segments*(i+1)).toVector3()*Waypoints.radius, Color.yellow);
+				
+					}
 				}
 			}
 		}
@@ -173,7 +222,43 @@ namespace Agent
             }
 			return isOutside;
         }
-		
+
+		public int countNbVisibleFrom(Vector3 point, List<int> indexUncoveredArea){
+			int nbAreaVisible = 0;
+			for(int i=0;i<indexUncoveredArea.Count;i++){
+				Area currentArea = areas.ElementAt(indexUncoveredArea.ElementAt(i));
+				Vector3[] corners = currentArea.getAreaCoord();
+				Boolean isAreaVisible = true;
+				for(int k=0;k<4;k++){
+					if(!PhysicsHelper.isClearPath(corners[k],point)){
+						isAreaVisible = false;
+						break;
+					}
+				}
+				if(isAreaVisible){
+					nbAreaVisible++;
+				}
+			}
+			return nbAreaVisible;
+		}
+
+		public void removeSeenArea(Vector3 point, List<int> indexUncoveredArea){
+			for(int i=indexUncoveredArea.Count-1;i>=0;i--){
+				Area currentArea = areas.ElementAt(indexUncoveredArea.ElementAt(i));
+				Vector3[] corners = currentArea.getAreaCoord();
+				Boolean isAreaVisible = true;
+				for(int k=0;k<4;k++){
+					if(!PhysicsHelper.isClearPath(corners[k],point)){
+						isAreaVisible = false;
+						break;
+					}
+				}
+				if(isAreaVisible){
+					indexUncoveredArea.RemoveAt(i);
+				}
+			}
+		}
+
 //		private Mesh newMesh(Vector3[] vertices, int[] triangles)
 //		{
 //			Mesh mesh = new Mesh();
