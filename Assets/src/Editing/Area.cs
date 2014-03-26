@@ -6,19 +6,17 @@ using System.Collections.Generic;
 
 namespace Agent
 {
-		public class Area
+	public class Area
+	{
+		public static int nbAreas = 0;
+		public readonly int index;
+		public readonly Rect corners;
+		
+		public Area (Rect corners)
 		{
-
-				public static int nbAreas = 0;
-				public int index;
-				public Rect corners;
-			
-				public Area (Rect corners)
-				{
-					this.corners = corners;
-					this.index = nbAreas;
-					nbAreas++;
-				}
+			this.corners = corners;
+			this.index = nbAreas;
+			nbAreas++;
 		}
+	}
 }
-

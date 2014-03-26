@@ -58,11 +58,12 @@ namespace Agent
 					Vector3 bottomRight = bottomLeftOfTheGrid + new Vector3((i+1)*gridSize,0f,j*gridSize);
 					Vector3 topLeft = bottomLeftOfTheGrid + new Vector3(i*gridSize,0f,(j+1)*gridSize);
 					Vector3 topRight = bottomLeftOfTheGrid + new Vector3((i+1)*gridSize,0f,(j+1)*gridSize);
-					Boolean isOutside1 = isPointInsideObstacle(bottomLeft);
-					Boolean isOutside2 = isPointInsideObstacle(bottomRight);
-					Boolean isOutside3 = isPointInsideObstacle(topLeft);
-					Boolean isOutside4 = isPointInsideObstacle(topRight);
-					gridFreeSpace[i,j] = isOutside1 && isOutside2 && isOutside3 && isOutside4;
+
+					gridFreeSpace[i,j] = 
+							PhysicsHelper.isClear(bottomLeft)  &&
+							PhysicsHelper.isClear(bottomRight) &&
+							PhysicsHelper.isClear(topLeft)     &&
+							PhysicsHelper.isClear(topRight);
 				}
 			}
 
@@ -160,41 +161,5 @@ namespace Agent
 				}
 			}
 		}
-
-		
-		
-		public Boolean isPointInsideObstacle(Vector3 point){
-			Boolean isOutside = true;
-			foreach(GameObject cube in GameObject.FindGameObjectsWithTag("obstacle")){
-				if(cube.renderer.bounds.Contains(point)){
-					isOutside = false;
-                    break;
-                }
-            }
-			return isOutside;
-        }
-		
-//		private Mesh newMesh(Vector3[] vertices, int[] triangles)
-//		{
-//			Mesh mesh = new Mesh();
-//			mesh.vertices = vertices;
-//			mesh.uv = Enumerable.Repeat(Vector2.zero, vertices.Length).ToArray();
-//			mesh.triangles = triangles;
-//			mesh.RecalculateNormals();
-//			return mesh;
-//		}
-		
-//		Tess getFloorTess()
-//		{
-//			Tess tess = new Tess();
-//			
-//			tess.AddContour(GameObject.Find("floor").collider.edges().toContour());
-//			
-//			foreach (GameObject obstacle in GameObject.FindGameObjectsWithTag("obstacle"))
-//				tess.AddContour(obstacle.collider.edges().toContour());
-//			
-//			tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
-//			return tess;
-//		}
 	}
 }

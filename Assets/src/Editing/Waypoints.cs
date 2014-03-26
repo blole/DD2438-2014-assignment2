@@ -40,7 +40,7 @@ namespace Agent
 		}
 #endif
 
-		void updateWaypoints()
+		public static void updateWaypoints()
 		{
 			waypoints.Clear();
 			neighbors.Clear();

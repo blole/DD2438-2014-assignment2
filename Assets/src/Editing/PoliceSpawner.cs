@@ -23,8 +23,8 @@ namespace Agent
 		{
 			get { return policeCount; }
 			set {
-			if (value < 0)
-				value = 0;
+				if (value < 0)
+					value = 0;
 
 				policeCount = transform.childCount;
 

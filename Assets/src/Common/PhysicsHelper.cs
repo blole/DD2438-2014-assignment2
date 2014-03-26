@@ -51,38 +51,10 @@ namespace Agent
 		{
 			return !Physics.OverlapSphere(v+collisionHeight, radius).Any(o=>o.tag == "obstacle");
 		}
+
+		public static bool isClear(Vector3 v)
+		{
+			return isClear(v, 0);
+		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
