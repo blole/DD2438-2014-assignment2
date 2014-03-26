@@ -167,6 +167,12 @@ namespace Agent
 			return v.normalized*Mathf.Clamp(v.magnitude, min, max);
 		}
 
+		public static Vector3 setY(this Vector3 v, float value)
+		{
+			v.y = value;
+			return v;
+		}
+
 
 
 		public static float mod(this float f, float rhs)
