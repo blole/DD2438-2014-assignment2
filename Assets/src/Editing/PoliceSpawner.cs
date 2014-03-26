@@ -15,54 +15,56 @@ namespace Agent
 		void Update ()
 		{
 			if (!Application.isPlaying)
-				setPoliceCount(policeCount);
+				PoliceCount = policeCount;
 		}
 		#endif
-		
-		void setPoliceCount(int newCount)
+
+		public int PoliceCount
 		{
-			if (newCount < 0)
-				newCount = 0;
+			get { return policeCount; }
+			set {
+			if (value < 0)
+				value = 0;
 
-			policeCount = transform.childCount;
+				policeCount = transform.childCount;
 
-			while (policeCount > newCount)
-			{
-				DestroyImmediate(transform.GetChild(0).gameObject);
-				policeCount--;
-			}
-
-			List<Vector3> positions = transform.children().Select(t=>t.position).ToList();
-
-			while(transform.childCount > 0)
-				DestroyImmediate(transform.GetChild(0).gameObject);
-
-			foreach (Vector3 pos in positions)
-				addPoliceAt(pos);
-
-			Vector2 maxPos = GameObject.Find("floor").collider.bounds.extents.projectDown();
-			float policeRadius = (policePrefab.collider as SphereCollider).radius*policePrefab.localScale.magnitude;
-			maxPos -= Vector2.one*policeRadius;
-
-			while (policeCount < newCount)
-			{
-				Vector3? pos = PhysicsHelper.randomCollisionFreePointOnFloor(policeRadius, 5);
-				
-				if (pos.HasValue)
+				while (policeCount > value)
 				{
-					addPoliceAt(pos.Value);
-					policeCount++;
+					DestroyImmediate(transform.GetChild(0).gameObject);
+					policeCount--;
 				}
-				else
-					break;
+
+				if (!Application.isPlaying)
+				{
+					//refresh all current police
+					List<Vector3> positions = transform.children().Select(t=>t.position).ToList();
+					List<Quaternion> rotations = transform.children().Select(t=>t.rotation).ToList();
+					while(transform.childCount > 0)
+						DestroyImmediate(transform.GetChild(0).gameObject);
+					for (int i=0; i<positions.Count; i++)
+						addPoliceAt(positions[i], rotations[i]);
+				}
+
+				while (policeCount < value)
+				{
+					Vector3? pos = PhysicsHelper.randomCollisionFreePointOnFloor(Waypoints.radius, 10);
+					
+					if (pos.HasValue)
+					{
+						Quaternion randomRotation = Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), Vector3.up);
+						addPoliceAt(pos.Value, randomRotation);
+						policeCount++;
+					}
+					else
+						break;
+				}
 			}
 		}
 
-		void addPoliceAt(Vector3 pos)
+		private void addPoliceAt(Vector3 pos, Quaternion rotation)
 		{
 			pos.y = Waypoints.radius;
-			Quaternion q = Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), Vector3.up);
-			Transform t = (Transform) Instantiate(policePrefab, pos, q);
+			Transform t = (Transform) Instantiate(policePrefab, pos, rotation);
 
 			t.localScale = Vector3.one*Waypoints.radius*2;
 			t.parent = transform;
