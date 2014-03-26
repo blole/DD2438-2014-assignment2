@@ -11,25 +11,31 @@ namespace Agent
 		public bool showWaypoints;
 		public bool showNeighbors;
 		public float vehicleRadius;
-		public static float radius;
+		private static Waypoints singleton;
+		public static float radius {get{return singleton==null?0:singleton.vehicleRadius; }}
 		public static List<Waypoint> waypoints = new List<Waypoint>();
 		public static Dictionary<Waypoint, List<Waypoint>> neighbors = new Dictionary<Waypoint, List<Waypoint>>();
 		private Vector3 offset = Vector3.up * 0.01f;
 
+		void Awake()
+		{
+			singleton = this;
+		}
+
 		void Start()
 		{
-			radius = vehicleRadius;
 			updateWaypoints();
 		}
 
 #if UNITY_EDITOR
 		void Update ()
 		{
-			if (Application.isEditor)
+			if (!Application.isPlaying)
 			{
-				radius = vehicleRadius;
+				singleton = this;
 				updateWaypoints();
-				maybeShowWaypoints();
+				drawWaypoints(showWaypoints);
+				drawNeighbors(showNeighbors);
 			}
 		}
 #endif
@@ -55,9 +61,11 @@ namespace Agent
 			}
 		}
 
-		void maybeShowWaypoints()
+
+
+		void drawWaypoints(bool show)
 		{
-			if (showWaypoints)
+			if (show)
 			{
 				int segments = 16;
 				foreach (Waypoint waypoint in waypoints)
@@ -67,6 +75,9 @@ namespace Agent
 						Debug.DrawLine(c+Vector2.up.turn(360f/segments*i).toVector3()*radius, c+Vector2.up.turn(360f/segments*(i+1)).toVector3()*radius, Color.green);
 				}
 			}
+		}
+		void drawNeighbors(bool show)
+		{
 			if (showNeighbors)
 			{
 				foreach (KeyValuePair<Waypoint, List<Waypoint>> pair in neighbors)

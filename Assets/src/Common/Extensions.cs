@@ -90,6 +90,12 @@ namespace Agent
 				throw new NotImplementedException("Collider.outerEdges() only works for boxes");
 		}
 
+		public static IEnumerable<Transform> children(this Transform transform)
+		{
+			foreach (Transform child in transform)
+				yield return child;
+		}
+
 
 
 
@@ -159,6 +165,12 @@ namespace Agent
 		public static Vector3 Clamp(this Vector3 v, float min, float max)
 		{
 			return v.normalized*Mathf.Clamp(v.magnitude, min, max);
+		}
+
+		public static Vector3 setY(this Vector3 v, float value)
+		{
+			v.y = value;
+			return v;
 		}
 
 

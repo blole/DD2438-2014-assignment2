@@ -18,7 +18,6 @@ namespace Agent
 			{
 				Vector3 point = randomPointOnFloor(radius);
 
-				Debug.Log(point);
 				if (!Physics.CheckSphere(point, radius))
 					return point;
 			}
@@ -36,15 +35,21 @@ namespace Agent
 
 			return maxPos.scale(UnityEngine.Random.Range(-1f,1f), UnityEngine.Random.Range(-1f,1f)).toVector3();
 		}
-		
+
+		static Vector3 collisionHeight = Vector3.up*0.3f;
+		public static bool isClearPath(Vector3 v, Vector3 u)
+		{
+			return !Physics.RaycastAll(v+collisionHeight, u-v, (u-v).magnitude).Any(hit=>hit.transform.tag == "obstacle");
+		}
+
 		public static bool isClearPath(Vector3 v, Vector3 u, float radius)
 		{
-			return !Physics.SphereCastAll(new Ray(v, u-v), radius, (u-v).magnitude).Any(hit=>hit.transform.tag == "obstacle");
+			return !Physics.SphereCastAll(v+collisionHeight, radius, u-v, (u-v).magnitude).Any(hit=>hit.transform.tag == "obstacle");
 		}
 		
 		public static bool isClear(Vector3 v, float radius)
 		{
-			return !Physics.OverlapSphere(v, radius).Any(o=>o.tag == "obstacle");
+			return !Physics.OverlapSphere(v+collisionHeight, radius).Any(o=>o.tag == "obstacle");
 		}
 	}
 }

@@ -10,9 +10,13 @@ namespace Agent
 	[ExecuteInEditMode]
 	public class Areas : MonoBehaviour {
 
+		private bool previousRecomputeAreas = false;
+		public bool recomputeAreas = false;
 		public bool showAreas;
 		public bool showGrid;
+		[Range(0.1f,20f)]
 		public float gridSize = 10f;
+		[Range(1,40)]
 		public int maximumConvexSize = 50;
 
 		private int nbRow;
@@ -22,8 +26,6 @@ namespace Agent
 		private List<Area> areas = new List<Area>();
 		private List<Vector2> pointsOfInterest = new List<Vector2>();
 
-//		public MeshFilter areaPrefab;
-
 		void Start ()
 		{
 			updateAreas();
@@ -32,15 +34,13 @@ namespace Agent
 #if UNITY_EDITOR
 		void Update ()
 		{
-			if (Application.isEditor)
+			if (!Application.isPlaying)
 				updateAreas();
 		}
 #endif
 
 		void updateAreas()
 		{
-			areas.Clear();
-			Area.nbAreas = 0;
 			foreach (Transform t in transform)
 				DestroyImmediate(t.gameObject);
 
@@ -75,6 +75,11 @@ namespace Agent
 					}
 				}
 			}
+
+			if(previousRecomputeAreas != recomputeAreas){
+				previousRecomputeAreas = recomputeAreas;
+				areas.Clear();
+				Area.nbAreas = 0;
 
 			// Creation of the convex set cover
 			Boolean[,] coveredCells = new Boolean[nbRow, nbCol];
@@ -134,6 +139,8 @@ namespace Agent
 					}
 				}
 			}
+                
+			}
 
 			if(showAreas){
 				for(int i=0;i<Area.nbAreas;i++){
@@ -152,8 +159,6 @@ namespace Agent
 					Debug.DrawLine(topLeft,topRight,Color.red);
 				}
 			}
-                
-
 		}
 
 		
