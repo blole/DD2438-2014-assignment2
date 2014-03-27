@@ -61,6 +61,24 @@ namespace Agent
 			}
 		}
 
+		public int Behavior
+		{
+			get { return Behavior; }
+			set {
+				if(value < 0)
+					value = 0;
+				if (value > 3)
+					value = 3;
+
+				// Refresh all police behaviors
+				foreach(Transform p in transform.children()){
+					Police currentScript = (Police)p.GetComponent("Police");
+					currentScript.guardType = value;
+				}
+
+			}
+		}
+
 		private void addPoliceAt(Vector3 pos, Quaternion rotation)
 		{
 			pos.y = Waypoints.radius;

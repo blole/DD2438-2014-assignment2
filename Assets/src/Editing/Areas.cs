@@ -20,17 +20,21 @@ namespace Agent
 		[Range(1,40)]
 		public int maximumConvexSize = 50;
 		public bool extraPoint = false;
+		public bool initilization = false;
 
 		private int nbRow;
 		private int nbCol;
 		private Vector3 bottomLeftOfTheGrid;
 		private Boolean[,] gridFreeSpace;
 		public List<Area> areas = new List<Area>();
-		public List<Vector3> setOfPointCoveringArea = new List<Vector3>();
+		public static List<Vector3> setOfPointCoveringArea = new List<Vector3>();
+		private static int indexPointForStaticGuarding = -1;
 
 		void Start ()
 		{
+			initilization = true;
 			updateAreas();
+			initilization = false;
 		}
 		
 #if UNITY_EDITOR
@@ -79,7 +83,7 @@ namespace Agent
 				}
 			}
 
-			if(previousRecomputeAreas != recomputeAreas){
+			if(previousRecomputeAreas != recomputeAreas || initilization){
 				previousRecomputeAreas = recomputeAreas;
 				areas.Clear();
 				setOfPointCoveringArea.Clear();
@@ -189,14 +193,7 @@ namespace Agent
 			}
 
 			if(showAreas){
-				for(int i=0;i<Area.nbAreas;i++){
-					Area currentArea = areas[i];
-					Vector3[] areaCoord = currentArea.getAreaCoord();
-					Debug.DrawLine(areaCoord[0],areaCoord[1],Color.red);
-					Debug.DrawLine(areaCoord[0],areaCoord[2],Color.red);
-					Debug.DrawLine(areaCoord[1],areaCoord[3],Color.red);
-					Debug.DrawLine(areaCoord[2],areaCoord[3],Color.red);
-				}
+				displayAreas();
 			}
 
 			if(showPointsCoveringArea){
@@ -244,6 +241,31 @@ namespace Agent
 					indexUncoveredArea.RemoveAt(i);
 				}
 			}
+		}
+
+		public void displayAreas(){
+			for(int i=0;i<Area.nbAreas;i++){
+				Area currentArea = areas[i];
+				Vector3[] areaCoord = currentArea.getAreaCoord();
+				Debug.DrawLine(areaCoord[0],areaCoord[1],Color.red);
+				Debug.DrawLine(areaCoord[0],areaCoord[2],Color.red);
+				Debug.DrawLine(areaCoord[1],areaCoord[3],Color.red);
+				Debug.DrawLine(areaCoord[2],areaCoord[3],Color.red);
+			}
+		}
+
+		public static int getNextIndexInterestingPoint(){
+			if(indexPointForStaticGuarding >= setOfPointCoveringArea.Count-1){
+				return -1;
+			}
+			else{
+				indexPointForStaticGuarding++;
+				return (indexPointForStaticGuarding);
+			}
+		}
+
+		public static void decreaseIndexStaticGuarding(){
+			indexPointForStaticGuarding--;
 		}
 
 	}

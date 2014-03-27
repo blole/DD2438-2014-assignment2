@@ -6,8 +6,15 @@ using System.Collections.Generic;
 
 namespace Agent
 {
+
 	public class Police : MonoBehaviour {
 		private LinkedList<Waypoint> path = new LinkedList<Waypoint>();
+		[Range(0,1)]
+		public int guardType = 0; // 0 - random // 1 - static guarding // 2 - secure // 3 - search & destroy
+
+		// Static guarding behavior
+		private bool asAStaticGoal = false;
+		private Vector3 staticGuardingGoal;
 
 		void Start()
 		{
@@ -15,17 +22,36 @@ namespace Agent
 		
 		void Update ()
 		{
-			if (path.Count > 0)
-			{
-				if (moveToward(path.First().pos))
-					path.RemoveFirst();
-			}
-			else
-			{
-				if (UnityEngine.Random.Range(0, 100) == 0)
-					NavigateTo(PhysicsHelper.randomPointOnFloor(Waypoints.radius));
+			if(guardType == 0){
+				if (path.Count > 0)
+				{
+					if (moveToward(path.First().pos))
+						path.RemoveFirst();
+				}
+				else
+				{
+					if (UnityEngine.Random.Range(0, 100) == 0)
+						NavigateTo(PhysicsHelper.randomPointOnFloor(Waypoints.radius));
 
-				moveToward(transform.position);
+					moveToward(transform.position);
+				}
+			}
+			else if(guardType == 1 ){
+				if(!asAStaticGoal){
+					int indexNextPoint = Areas.getNextIndexInterestingPoint();
+					print (indexNextPoint);
+					if(indexNextPoint != -1){
+						staticGuardingGoal = Areas.setOfPointCoveringArea.ElementAt(indexNextPoint);
+						NavigateTo(staticGuardingGoal);
+						asAStaticGoal = true;
+					}
+				}
+				if(path.Count > 0){
+					if (moveToward(path.First().pos))
+						path.RemoveFirst();
+				}
+				else
+					moveToward(transform.position);
 			}
 		}
 
