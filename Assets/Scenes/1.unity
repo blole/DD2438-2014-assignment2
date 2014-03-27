@@ -974,7 +974,7 @@ GameObject:
   - 114: {fileID: 1421864208}
   m_Layer: 0
   m_Name: areas
-  m_TagString: Untagged
+  m_TagString: area
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -997,7 +997,7 @@ MonoBehaviour:
   gridSize: .300000012
   maximumConvexSize: 5
   extraPoint: 1
-  initilization: 0
+  initialization: 0
 --- !u!4 &1421864209
 Transform:
   m_ObjectHideFlags: 0
