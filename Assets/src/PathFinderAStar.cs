@@ -8,7 +8,7 @@ namespace Agent
 {
 	public static class PathFinderAStar
 	{
-		static public LinkedList<Waypoint> find(Vector3 start, Vector3 goal)
+		static public Path find(Vector3 start, Vector3 goal)
 		{
 			float radius = Waypoints.radius;
 			if (!PhysicsHelper.isClear(goal, radius))
@@ -67,7 +67,7 @@ namespace Agent
 				this.totalLength = previous.totalLength+(previous.wp.pos-wp.pos).projectDown().magnitude;
 			}
 			
-			public LinkedList<Waypoint> toPath()
+			public Path toPath()
 			{
 				LinkedList<Waypoint> waypoints = new LinkedList<Waypoint>();
 				waypoints.AddFirst(wp);
@@ -78,7 +78,18 @@ namespace Agent
 					p = p.previous;
 				}
 				
-				return waypoints;
+				return new Path(waypoints,totalLength);
+			}
+		}
+
+		public class Path
+		{
+			public LinkedList<Waypoint> waypoints;
+			public float lengthPath;
+
+			public Path(LinkedList<Waypoint> waypoints, float lengthPath){
+				this.waypoints = waypoints;
+				this.lengthPath = lengthPath;
 			}
 		}
 	}

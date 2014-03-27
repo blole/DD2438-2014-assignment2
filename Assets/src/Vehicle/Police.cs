@@ -70,9 +70,9 @@ namespace Agent
 
 		void NavigateTo(Vector3 to)
 		{
-			LinkedList<Waypoint> path = PathFinderAStar.find(transform.position, to);
+			PathFinderAStar.Path path = PathFinderAStar.find(transform.position, to);
 			if (path != null)
-				this.path = path;
+				this.path = path.waypoints;
 		}
 
 		protected bool moveToward(Vector3 goal)
