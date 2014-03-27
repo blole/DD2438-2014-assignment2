@@ -1,0 +1,123 @@
+\documentclass[a4paper,10pt,twocolumn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[center]{caption}
+\usepackage[english]{babel}
+% \usepackage[top=3cm, bottom=3cm, left=2cm, right=2cm]{geometry}
+
+%---------------------------------------------
+% Font packages
+%---------------------------------------------
+\usepackage{lmodern}
+% \usepackage{concmath}
+% \usepackage{cmbright}
+% \usepackage{kpfonts}
+% \usepackage[adobe-utopia]{mathdesign}
+% \usepackage{fouriernc}
+\usepackage[T1]{fontenc}
+
+%---------------------------------------------
+% Math environment packages & command
+%---------------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+% \usepackage{mathrsfs}
+\usepackage{array}
+% \def\sgn{\mathop{\rm sgn}\nolimits} 
+% \usepackage{bbm}
+
+
+%---------------------------------------------
+% item option
+%---------------------------------------------
+\renewcommand{\labelitemi}{-}
+
+
+%---------------------------------------------
+%HEADER & FOOTER
+%---------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\renewcommand{\headrulewidth}{.15pt}
+\fancyhead[C]{{\textsc{The Guarding Problem}}} 
+\fancyhead[L]{Page \thepage \ of \pageref{LastPage}}
+\fancyhead[R]{DD2438}
+
+\renewcommand{\footrulewidth}{.15pt}
+\fancyfoot[C]{\thepage} 
+% \fancyfoot[L]{truc}
+% \fancyfoot[R]{bidule}
+
+\usepackage{lastpage}
+
+%---------------------------------------------
+% two column option
+%---------------------------------------------
+\setlength{\columnsep}{1cm}
+
+%---------------------------------------------
+% Table of content
+%---------------------------------------------
+\usepackage[colorlinks,linkcolor=black, citecolor=black]{hyperref}
+
+%---------------------------------------------
+% Opening
+%---------------------------------------------
+\title{Artificial Intelligence \& Multi-Agent System :\\ \textsc{The Guarding Problem}}
+\author{Björn \textsc{Holm}, Kilian \textsc{Demeulemeester} \\ \texttt{\{bjh,kiliande\}@kth.se}}
+
+%---------------------------------------------
+% Numerotation Handling
+%---------------------------------------------
+% \setcounter{section}{3}
+% \usepackage[explicit]{titlesec}
+% % \titleformat{<command>}[<shape>]{<format>}{<label>}{<sep>}{<before>}[<after>]
+% \titleformat{\subsubsection}[hang]{\normalfont\normalsize\bfseries}%
+%     {}{4pt}%
+%     {#1 \arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+
+
+%---------------------------------------------
+% Dummy text
+%---------------------------------------------
+\usepackage{lipsum}
+
+%---------------------------------------------
+% Quote
+%---------------------------------------------
+\usepackage[babel=true]{csquotes}
+    
+\begin{document}
+
+\setlength\parindent{0em}
+
+ \maketitle
+
+\tableofcontents
+
+\begin{abstract}
+ \input{part/abstract}
+\end{abstract}
+
+\section{Environment representation}
+\input{part/envRepresentation}
+
+\section{Static Guarding}
+\input{part/staticGuard}
+
+
+\section{Dynamic Guarding}
+\input{part/dynamicGuard}
+
+
+\section{Search \& Destroy}
+\input{part/searchDestroy}
+
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+\input{part/conclusion}
+
+
+\end{document}
