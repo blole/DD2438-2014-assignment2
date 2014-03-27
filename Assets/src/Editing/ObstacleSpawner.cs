@@ -8,6 +8,7 @@ namespace Agent
 {
 	[ExecuteInEditMode]
 	public class ObstacleSpawner : MonoBehaviour {
+		[Range(0,30)]
 		public int obstacles = 4;
 		public Transform obstaclePrefab;
 		public float minSide = 0.5f;

@@ -88,7 +88,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c58135b3247111a4abdc6af015cdd588, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxVelocity: 2
+  maxVelocity: 4
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d84ac495c293be4daa436f56f083c05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guardType: 0
 --- !u!114 &11400004
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -125,7 +126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   show: 1
   FOV: 360
-  viewDistance: 5
+  viewDistance: 20
   raycastPoints: 50
   FovPrefab: {fileID: 3300000, guid: d8476b02854b07b4c99c92b7ba4e9a3c, type: 2}
 --- !u!135 &13500000

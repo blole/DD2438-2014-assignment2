@@ -10,12 +10,15 @@ namespace Agent
 	public class PoliceSpawner : MonoBehaviour {
 		public int policeCount;
 		public Transform policePrefab;
+		public int behavior;
 
 		#if UNITY_EDITOR
 		void Update ()
 		{
-			if (!Application.isPlaying)
+			if (!Application.isPlaying){
 				PoliceCount = policeCount;
+				Behavior = behavior;
+			}
 		}
 		#endif
 
@@ -30,7 +33,7 @@ namespace Agent
 
 				while (policeCount > value)
 				{
-					DestroyImmediate(transform.GetChild(0).gameObject);
+					DestroyImmediate(transform.GetChild(policeCount-1).gameObject);
 					policeCount--;
 				}
 
@@ -76,6 +79,7 @@ namespace Agent
 					currentScript.guardType = value;
 				}
 
+				behavior = value;
 			}
 		}
 
@@ -83,7 +87,7 @@ namespace Agent
 		{
 			pos.y = Waypoints.radius;
 			Transform t = (Transform) Instantiate(policePrefab, pos, rotation);
-
+			((Police)t.GetComponent ("Police")).guardType = behavior;
 			t.localScale = Vector3.one*Waypoints.radius*2;
 			t.parent = transform;
 		}

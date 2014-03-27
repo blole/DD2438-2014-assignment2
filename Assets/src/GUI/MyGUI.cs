@@ -19,7 +19,15 @@ namespace Agent
 				GameObject.FindObjectOfType<ObstacleSpawner>().ObstacleCount++;
 			if (GUI.Button(new Rect(10,109,120,30), "Remove obstacle"))
 				GameObject.FindObjectOfType<ObstacleSpawner>().ObstacleCount--;
-//			if (GUI.Button (new Rect(
+
+			// Robot count
+			int nbRobot = GameObject.FindObjectOfType<PoliceSpawner> ().policeCount;
+			String msgRobot = "";
+			if(nbRobot < 2)
+				msgRobot = "There is " + nbRobot + " robot.";
+			else
+				msgRobot = "There are " + nbRobot + " robots.";
+			GUI.Box(new Rect(10,142,120,20),msgRobot);
 
 			// GUI FOR BEHAVIOR
 			// Make a background box
@@ -33,9 +41,13 @@ namespace Agent
 				GameObject.FindObjectOfType<PoliceSpawner>().Behavior = 2;
 			if (GUI.Button(new Rect(540,30,120,30), "Search & Destroy"))
 				GameObject.FindObjectOfType<PoliceSpawner>().Behavior = 3;
-
-			if (GameObject.FindObjectOfType<PoliceSpawner>().Behavior == 1) {
-						
+			
+			if (GameObject.FindObjectOfType<PoliceSpawner>().behavior == 0)
+				GUI.Box(new Rect(140,80,530,30), "The robot are moving randomly in the area");
+			if (GameObject.FindObjectOfType<PoliceSpawner>().behavior == 1){
+				String msg = "You need " + Areas.setOfPointCoveringArea.Count + " robot(s) to cover the whole area \n" 
+					+ "If you have more, then the extra ones will move randomly";
+				GUI.Box(new Rect(140,80,530,40), msg);
 			}
 		}
 	}

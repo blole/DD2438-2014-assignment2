@@ -23,6 +23,10 @@ namespace Agent
 		void Update ()
 		{
 			if(guardType == 0){
+				if(asAStaticGoal){
+					asAStaticGoal = false;
+					Areas.decreaseIndexStaticGuarding();
+				}
 				if (path.Count > 0)
 				{
 					if (moveToward(path.First().pos))
@@ -45,13 +49,23 @@ namespace Agent
 						NavigateTo(staticGuardingGoal);
 						asAStaticGoal = true;
 					}
+					else
+					{
+						if (UnityEngine.Random.Range(0, 100) == 0){
+							staticGuardingGoal = PhysicsHelper.randomPointOnFloor(Waypoints.radius);
+							NavigateTo(staticGuardingGoal);
+						}
+					}
 				}
 				if(path.Count > 0){
 					if (moveToward(path.First().pos))
 						path.RemoveFirst();
 				}
 				else
-					moveToward(transform.position);
+					if((staticGuardingGoal - transform.position).magnitude > .1f)
+						NavigateTo(staticGuardingGoal);
+					else
+						moveToward(transform.position);
 			}
 		}
 
