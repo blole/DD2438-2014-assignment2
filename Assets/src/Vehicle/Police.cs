@@ -43,7 +43,6 @@ namespace Agent
 			else if(guardType == 1 ){
 				if(!asAStaticGoal){
 					int indexNextPoint = Areas.getNextIndexInterestingPoint();
-					print (indexNextPoint);
 					if(indexNextPoint != -1){
 						staticGuardingGoal = Areas.setOfPointCoveringArea.ElementAt(indexNextPoint);
 						NavigateTo(staticGuardingGoal);

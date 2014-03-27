@@ -10,24 +10,32 @@ namespace Agent
 	[ExecuteInEditMode]
 	public class Areas : MonoBehaviour {
 
+		// Control the (re)computing of areas
 		private bool previousRecomputeAreas = false;
 		public bool recomputeAreas = false;
+		public bool initialization = false;
+
+		// Grid
+		[Range(0.2f,20f)]
+		public float gridSize = 0.4f;
+		private Vector3 bottomLeftOfTheGrid;
+		[Range(1,40)]
+		private int nbRow;
+		private int nbCol;
+		private Boolean[,] gridFreeSpace;
+
+		// Maximum set cover
+		public int maximumConvexSize = 50;
+		public bool extraPoint = false;
+		public List<Area> areas = new List<Area>();
+		public static List<Vector3> setOfPointCoveringArea = new List<Vector3>();
+
+		// Display boolean
 		public bool showPointsCoveringArea = false;
 		public bool showAreas;
 		public bool showGrid;
-		[Range(0.2f,20f)]
-		public float gridSize = 0.4f;
-		[Range(1,40)]
-		public int maximumConvexSize = 50;
-		public bool extraPoint = false;
-		public bool initialization = false;
 
-		private int nbRow;
-		private int nbCol;
-		private Vector3 bottomLeftOfTheGrid;
-		private Boolean[,] gridFreeSpace;
-		public List<Area> areas = new List<Area>();
-		public static List<Vector3> setOfPointCoveringArea = new List<Vector3>();
+		// Static guarding
 		private static int indexPointForStaticGuarding = -1;
 
 		void Start ()
@@ -76,15 +84,20 @@ namespace Agent
 			{
 				for(int i=0; i < nbRow ; i++){
 					for(int j=0; j < nbCol; j++){
-						Debug.DrawLine(bottomLeftOfTheGrid + new Vector3(i*gridSize,0f,j*gridSize),bottomLeftOfTheGrid+ new Vector3((i+1)*gridSize,0f,j*gridSize),Color.cyan);
-						Debug.DrawLine(bottomLeftOfTheGrid + new Vector3(i*gridSize,0f,j*gridSize),bottomLeftOfTheGrid+ new Vector3(i*gridSize,0f,(j+1)*gridSize),Color.cyan);
+						Debug.DrawLine(bottomLeftOfTheGrid + new Vector3(i*gridSize,0f,j*gridSize),
+						               bottomLeftOfTheGrid+ new Vector3((i+1)*gridSize,0f,j*gridSize),Color.cyan);
+						Debug.DrawLine(bottomLeftOfTheGrid + new Vector3(i*gridSize,0f,j*gridSize),
+						               bottomLeftOfTheGrid+ new Vector3(i*gridSize,0f,(j+1)*gridSize),Color.cyan);
 					}
 				}
 			}
 
 			if(previousRecomputeAreas != recomputeAreas || initialization){
+				// Assure that the recomputation is done one
 				initialization = false;
 				previousRecomputeAreas = recomputeAreas;
+
+				// Clear all previous results 
 				areas.Clear();
 				setOfPointCoveringArea.Clear();
 				Area.nbAreas = 0;
@@ -137,7 +150,8 @@ namespace Agent
 					}
 
 					// Add new rectangle to the convex set and mark covered cells as so
-					Rect rectArea = new Rect(bottomLeftOfTheGrid.x + pi*gridSize, bottomLeftOfTheGrid.z + pj*gridSize, (maxI-pi+1)*gridSize, (maxJ-pj+1)*gridSize);
+					Rect rectArea = new Rect(bottomLeftOfTheGrid.x + pi*gridSize, bottomLeftOfTheGrid.z + pj*gridSize, (maxI-pi+1)*gridSize, 
+					                         (maxJ-pj+1)*gridSize);
 					areas.Add(new Area(rectArea));
 					nbCellRemaining -= ((maxI-pi+1)*(maxJ-pj+1));
 					for(int i=pi;i<=maxI;i++){
@@ -183,14 +197,6 @@ namespace Agent
 					setOfPointCoveringArea.Add(bestPos);
 					removeSeenArea(bestPos,indexUncoveredAreas);
 				}
-
-				
-//				for(int i=0;i<setOfPointCoveringArea.Count;i++){
-//					print (setOfPointCoveringArea.ElementAt(i));
-//				}
-//				print ("TEST = " + setOfPointCoveringArea.Count);
-
-
 			}
 
 			if(showAreas){
@@ -202,12 +208,13 @@ namespace Agent
 				for(int k=0; k<setOfPointCoveringArea.Count;k++){
 					Vector3 c = setOfPointCoveringArea.ElementAt(k)+Vector3.up * 0.01f;
 					for (int i=0; i<segments; i++){
-						Debug.DrawLine(c+Vector2.up.turn(360f/segments*i).toVector3()*Waypoints.radius, c+Vector2.up.turn(360f/segments*(i+1)).toVector3()*Waypoints.radius, Color.yellow);
-				
+						Debug.DrawLine(c+Vector2.up.turn(360f/segments*i).toVector3()*Waypoints.radius,
+						               c+Vector2.up.turn(360f/segments*(i+1)).toVector3()*Waypoints.radius, Color.yellow);
 					}
 				}
 			}
 		}
+
 		public int countNbVisibleFrom(Vector3 point, List<int> indexUncoveredArea){
 			int nbAreaVisible = 0;
 			for(int i=0;i<indexUncoveredArea.Count;i++){
@@ -255,6 +262,8 @@ namespace Agent
 			}
 		}
 
+
+		// Static guarding function
 		public static int getNextIndexInterestingPoint(){
 			if(indexPointForStaticGuarding >= setOfPointCoveringArea.Count-1){
 				return -1;
@@ -268,6 +277,5 @@ namespace Agent
 		public static void decreaseIndexStaticGuarding(){
 			indexPointForStaticGuarding--;
 		}
-
 	}
 }
