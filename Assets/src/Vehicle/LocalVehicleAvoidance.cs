@@ -29,7 +29,7 @@ namespace Agent
 				else
 					velocity += -toOther * distanceToForceTransform(toOther.magnitude);
 			}
-
+			velocity = Quaternion.AngleAxis (90f, Vector3.up) * velocity;
 			GetComponent<Vehicle>().setDesiredDirection(1, velocity.normalized, velocity.magnitude);
 		}
 	}

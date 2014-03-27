@@ -20,7 +20,7 @@ namespace Agent
 		[Range(1,40)]
 		public int maximumConvexSize = 50;
 		public bool extraPoint = false;
-		public bool initilization = false;
+		public bool initialization = false;
 
 		private int nbRow;
 		private int nbCol;
@@ -32,9 +32,8 @@ namespace Agent
 
 		void Start ()
 		{
-			initilization = true;
+			initialization = true;
 			updateAreas();
-			initilization = false;
 		}
 		
 #if UNITY_EDITOR
@@ -45,7 +44,7 @@ namespace Agent
 		}
 #endif
 
-		void updateAreas()
+		public void updateAreas()
 		{
 			foreach (Transform t in transform)
 				DestroyImmediate(t.gameObject);
@@ -83,11 +82,13 @@ namespace Agent
 				}
 			}
 
-			if(previousRecomputeAreas != recomputeAreas || initilization){
+			if(previousRecomputeAreas != recomputeAreas || initialization){
+				initialization = false;
 				previousRecomputeAreas = recomputeAreas;
 				areas.Clear();
 				setOfPointCoveringArea.Clear();
 				Area.nbAreas = 0;
+				indexPointForStaticGuarding = 0;
 
 				// Creation of the convex set cover
 				Boolean[,] coveredCells = new Boolean[nbRow, nbCol];

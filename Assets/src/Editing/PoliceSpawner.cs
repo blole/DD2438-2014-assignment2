@@ -66,7 +66,7 @@ namespace Agent
 
 		public int Behavior
 		{
-			get { return Behavior; }
+			get { return behavior; }
 			set {
 				if(value < 0)
 					value = 0;
