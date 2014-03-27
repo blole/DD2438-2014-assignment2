@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt,twocolumn]{article}
+\documentclass[a4paper,9pt,twocolumn]{extarticle}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage[center]{caption}
@@ -55,7 +55,7 @@
 %---------------------------------------------
 % two column option
 %---------------------------------------------
-\setlength{\columnsep}{1cm}
+\setlength{\columnsep}{0.7cm}
 
 %---------------------------------------------
 % Table of content
@@ -85,9 +85,10 @@
 \usepackage{lipsum}
 
 %---------------------------------------------
-% Quote
+% Algorithm form
 %---------------------------------------------
-\usepackage[babel=true]{csquotes}
+\newtheorem{algorithm}{Algorithm}[section]
+\newtheorem{criteria}{Criteria}[section]
     
 \begin{document}
 
@@ -97,9 +98,11 @@
 
 \tableofcontents
 
-\begin{abstract}
- \input{part/abstract}
-\end{abstract}
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+\input{part/abstract}
 
 \section{Environment representation}
 \input{part/envRepresentation}
@@ -119,5 +122,8 @@
 \addcontentsline{toc}{section}{Conclusion}
 \input{part/conclusion}
 
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{bibliography}
 
 \end{document}
