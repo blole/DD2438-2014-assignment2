@@ -15,7 +15,7 @@ namespace Agent
 				return null;
 
 			if (PhysicsHelper.isClearPath(start, goal, Waypoints.radius))
-				return new PathStep(new Waypoint(goal),(start-goal).projectDown().magnitude).toPath();
+				return new PathStep(new Waypoint(goal), (start-goal).projectDown().magnitude).toPath();
 			
 			bool[] visited = new bool[Waypoints.waypoints.Count];
 			PriorityQueue<float, PathStep> queue = new PriorityQueue<float, PathStep>();
@@ -23,7 +23,7 @@ namespace Agent
 			foreach (Waypoint waypoint in Waypoints.waypoints)
 			{
 				if (PhysicsHelper.isClearPath(start, waypoint.pos, Waypoints.radius))
-					queue.Enqueue((start-waypoint.pos).projectDown().magnitude+(waypoint.pos-goal).projectDown().magnitude, new PathStep(waypoint,(start-waypoint.pos).projectDown().magnitude));
+					queue.Enqueue((start-waypoint.pos).projectDown().magnitude+(waypoint.pos-goal).projectDown().magnitude, new PathStep(waypoint, (start-waypoint.pos).projectDown().magnitude));
 			}
 
 			while (!queue.IsEmpty)
@@ -53,7 +53,7 @@ namespace Agent
 			public Waypoint wp;
 			public float totalLength;
 
-			public PathStep(Waypoint wp,float totalLength)
+			public PathStep(Waypoint wp, float totalLength)
 			{
 				this.previous = null;
 				this.wp = wp;
