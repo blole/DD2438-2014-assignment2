@@ -34,6 +34,7 @@ namespace Agent
 		public bool showPointsCoveringArea = false;
 		public bool showAreas;
 		public bool showGrid;
+		public Color areasColor = Color.red;
 
 		// Static guarding
 		private static int indexPointForStaticGuarding = -1;
@@ -255,10 +256,10 @@ namespace Agent
 			for(int i=0;i<Area.nbAreas;i++){
 				Area currentArea = areas[i];
 				Vector3[] areaCoord = currentArea.getAreaCoord();
-				Debug.DrawLine(areaCoord[0],areaCoord[1],Color.red);
-				Debug.DrawLine(areaCoord[0],areaCoord[2],Color.red);
-				Debug.DrawLine(areaCoord[1],areaCoord[3],Color.red);
-				Debug.DrawLine(areaCoord[2],areaCoord[3],Color.red);
+				Debug.DrawLine(areaCoord[0],areaCoord[1],areasColor);
+				Debug.DrawLine(areaCoord[0],areaCoord[2],areasColor);
+				Debug.DrawLine(areaCoord[1],areaCoord[3],areasColor);
+				Debug.DrawLine(areaCoord[2],areaCoord[3],areasColor);
 			}
 		}
 
