@@ -1,4 +1,4 @@
-This problem is solved using the greedy algorithm \ref{algStaticGuard}, which generate a set of point $ S = P_{1\leq i \leq n}$ from which all the environment is visible.
+This problem is solved using the greedy algorithm \ref{algStaticGuard}, which generate a set of point $ S = P_{1\leq i \leq n}$ from which all the environment is visible. Figure \ref{staticCoverSet} shows the set of points produced by the algorithm.
 
 \begin{algorithm}
 This algorithm gives a way to find a set of point from which all the area is visible.
@@ -12,3 +12,12 @@ This algorithm gives a way to find a set of point from which all the area is vis
 \end{enumerate}
 \label{algStaticGuard}
 \end{algorithm}
+
+Even if there is no guarantee that algorithm \ref{algStaticGuard} will find the optimal solution, its low complexity ($\mathcal{O}(n)$ -- where $n$ is the size of the set) has been proven to be the best-possible polynomial time approximation algorithm for set cover (see \cite{approxMinProb}).
+
+\begin{figure}[h!t]
+	\centering
+	\includegraphics[height=0.5\linewidth]{fig/cat.eps}
+	\caption{Positions for static guarding}
+	\label{staticCoverSet}
+\end{figure}
