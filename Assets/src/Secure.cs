@@ -20,14 +20,19 @@ namespace Agent
 		void LateUpdate ()
 		{
 			print ("----------------- RECOMPUTING! --------------------");
-			if (!Application.isPlaying)
-				computeGuardPath(GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount);
+			if (!Application.isPlaying){
+				int nbGuard = GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount;
+				if(nbGuard > 0)
+					computeGuardPath(GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount);
+			}
 		}
 #endif
 
 		void computeGuardPath (int nbGuard)
 		{
 			int nbPoint = Areas.setOfPointCoveringArea.Count ();
+			if(nbPoint == 0)
+				return;
 			print ("nbPoint = " + nbPoint + " nbGuard = " + nbGuard);
 			Permutation permutationGenerator = new Permutation (nbGuard + nbPoint);
 
@@ -36,29 +41,29 @@ namespace Agent
 			float bestLength = Mathf.Infinity;
 			while (permutationGenerator.next()) {
 				if(permutationGenerator.isValid(nbGuard)){
-					String curPerm = "Current permutation = ";
-					for(int i=0;i<permutationGenerator.n;i++){
-						curPerm += permutationGenerator.array[i] + ",";
-					}
+//					String curPerm = "Current permutation = ";
+//					for(int i=0;i<permutationGenerator.n;i++){
+//						curPerm += permutationGenerator.array[i] + ",";
+//					}
 					float tmpLength = 0f;
 					for(int r=nbPoint;r<nbPoint+nbGuard;r++){
 						tmpLength += getPathLength(r,permutationGenerator.array,nbGuard,nbPoint);
 						if(tmpLength>bestLength)
 						{
-							print("Break case");
+//							print("Break case");
 							break;
 						}
 					}
-					curPerm += " has length " + tmpLength;
-					print (curPerm);
+//					curPerm += " has length " + tmpLength;
+//					print (curPerm);
 					if(tmpLength > 0f && tmpLength < bestLength){
 						bestLength = tmpLength;
 						bestPermutation = (int[])permutationGenerator.array.Clone();
-						String msgtmp = "Best Permutation so far= ";
-						for(int i=0;i<permutationGenerator.n;i++){
-							msgtmp += bestPermutation[i] + ",";
-						}
-						print (msgtmp + " with length " + bestLength);
+//						String msgtmp = "Best Permutation so far= ";
+//						for(int i=0;i<permutationGenerator.n;i++){
+//							msgtmp += bestPermutation[i] + ",";
+//						}
+//						print (msgtmp + " with length " + bestLength);
 					}
 				}
 			}
@@ -84,22 +89,11 @@ namespace Agent
 			if(currentIndex >= nbGuard+nbPoint)
 				return 0f;
 
-			/* DEBUG
-			String debug = "Permutation ";
-			for (int i=0; i<nbGuard+nbPoint; i++) {
-				debug += currentPermutation[i] + ",";
-			}
-			debug += " for guard " + indexGuard + "has the following point attributed: ";
-			*/
-
 			while(currentIndex < nbGuard + nbPoint && currentPermutation[currentIndex] < nbPoint ){
-//				print ("index = " + currentIndex + "value = " + currentPermutation[currentIndex]);
 				indexPath.Add (currentPermutation[currentIndex]);
-				// debug += currentPermutation[currentIndex] + ",";
             	currentIndex++;
 			}
-			
-			// print (debug);
+
 			if(!indexPath.Any()){
 				return 0f;
 			}
@@ -107,7 +101,6 @@ namespace Agent
 			PathFinderAStar.Path tmpPath = PathFinderAStar.find (guards[indexGuard-nbPoint].transform.position,
 			                                                     Areas.setOfPointCoveringArea.ElementAt (indexPath.ElementAt (0)));
 			float pathLength = tmpPath.lengthPath;
-			String globalPathmsg = tmpPath.toString ();
 			for(int i=0;i<indexPath.Count-1;i++){
 				int startIndex = indexPath.ElementAt(i);
 				int endIndex = indexPath.ElementAt(i+1);
@@ -115,9 +108,7 @@ namespace Agent
 				Vector3 end = Areas.setOfPointCoveringArea.ElementAt(endIndex);
 				tmpPath = PathFinderAStar.find(start,end);
 				pathLength += tmpPath.lengthPath;
-				globalPathmsg += tmpPath.toString();
 			}
-			print ("Global path for guard " + indexGuard + " = " + globalPathmsg);
 			return pathLength;
 		}
 
@@ -145,14 +136,13 @@ namespace Agent
 			if(!indexPath.Any()){
 				return;
 			}
-			print ("indexGuardInPermutation = " + indexGuardInPermutation + " currentIndex = " + currentIndex);
 			GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
 			PathFinderAStar.Path tmpPath = PathFinderAStar.find (guards[indexGuard-nbPoint].transform.position,
 			                                         Areas.setOfPointCoveringArea.ElementAt (indexPath.ElementAt (0)));
 
 			Debug.DrawLine (guards [indexGuard - nbPoint].transform.position, tmpPath.waypoints.ElementAt (0).pos, Color.blue);
 			for (int i=0; i<tmpPath.waypoints.Count-1; i++) {
-				Debug.DrawLine(tmpPath.waypoints.ElementAt(i).pos,tmpPath.waypoints.ElementAt(i).pos,Color.blue);		
+				Debug.DrawLine(tmpPath.waypoints.ElementAt(i).pos,tmpPath.waypoints.ElementAt(i+1).pos,Color.blue);		
 			}
 
 			for(int i=0;i<indexPath.Count-1;i++){
@@ -163,7 +153,7 @@ namespace Agent
 				tmpPath = PathFinderAStar.find(start,end);
 				Debug.DrawLine (start, tmpPath.waypoints.ElementAt (0).pos, Color.blue);
 				for (int w=0; w<tmpPath.waypoints.Count-1; w++) {
-					Debug.DrawLine(tmpPath.waypoints.ElementAt(w).pos,tmpPath.waypoints.ElementAt(i).pos,Color.blue);		
+					Debug.DrawLine(tmpPath.waypoints.ElementAt(w).pos,tmpPath.waypoints.ElementAt(w+1).pos,Color.blue);		
 				}
 			}
 		}
