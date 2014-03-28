@@ -101,7 +101,7 @@ namespace Agent
 				areas.Clear();
 				setOfPointCoveringArea.Clear();
 				Area.nbAreas = 0;
-				indexPointForStaticGuarding = 0;
+				indexPointForStaticGuarding = -1;
 
 				// Creation of the convex set cover
 				Boolean[,] coveredCells = new Boolean[nbRow, nbCol];
@@ -270,12 +270,15 @@ namespace Agent
 			}
 			else{
 				indexPointForStaticGuarding++;
+				print ("Returning " + indexPointForStaticGuarding);
 				return (indexPointForStaticGuarding);
 			}
 		}
 
 		public static void decreaseIndexStaticGuarding(){
 			indexPointForStaticGuarding--;
+			if(indexPointForStaticGuarding<-1)
+				indexPointForStaticGuarding=-1;
 		}
 	}
 }

@@ -91,6 +91,15 @@ namespace Agent
 				this.waypoints = waypoints;
 				this.lengthPath = lengthPath;
 			}
+
+			public String toString(){
+				String result = "Path = ";
+				for(int i=0;i<this.waypoints.Count;i++){
+					result += this.waypoints.ElementAt(i).pos.ToString() + " - ";
+				}
+				result += " with length " + this.lengthPath + ".";
+				return result;
+			}
 		}
 	}
 }
