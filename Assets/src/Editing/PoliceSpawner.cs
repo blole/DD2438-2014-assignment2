@@ -8,6 +8,7 @@ namespace Agent
 {
 	[ExecuteInEditMode]
 	public class PoliceSpawner : MonoBehaviour {
+		[Range(0,10)]
 		public int policeCount;
 		public Transform policePrefab;
 		public int behavior;

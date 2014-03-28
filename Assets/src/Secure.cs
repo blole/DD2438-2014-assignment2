@@ -11,6 +11,11 @@ namespace Agent
 	{
 		public bool showDynamicGuarding;
 
+		public bool recomputePaths = true;
+		private bool previousRecomputePaths = false;
+
+		private int[] bestPermutation;
+
 		void Start ()
 		{
 
@@ -22,8 +27,9 @@ namespace Agent
 			print ("----------------- RECOMPUTING! --------------------");
 			if (!Application.isPlaying){
 				int nbGuard = GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount;
-				if(nbGuard > 0)
+				if(nbGuard > 0){
 					computeGuardPath(GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount);
+				}
 			}
 		}
 #endif
@@ -34,45 +40,37 @@ namespace Agent
 			if(nbPoint == 0)
 				return;
 			print ("nbPoint = " + nbPoint + " nbGuard = " + nbGuard);
-			Permutation permutationGenerator = new Permutation (nbGuard + nbPoint);
 
-			// Compute best permutation
-			int[] bestPermutation = new int[permutationGenerator.n];
-			float bestLength = Mathf.Infinity;
-			while (permutationGenerator.next()) {
-				if(permutationGenerator.isValid(nbGuard)){
-//					String curPerm = "Current permutation = ";
-//					for(int i=0;i<permutationGenerator.n;i++){
-//						curPerm += permutationGenerator.array[i] + ",";
-//					}
-					float tmpLength = 0f;
-					for(int r=nbPoint;r<nbPoint+nbGuard;r++){
-						tmpLength += getPathLength(r,permutationGenerator.array,nbGuard,nbPoint);
-						if(tmpLength>bestLength)
-						{
-//							print("Break case");
-							break;
+			if(previousRecomputePaths != recomputePaths){
+				previousRecomputePaths = recomputePaths;
+				Permutation permutationGenerator = new Permutation (nbGuard + nbPoint);
+
+				// Compute best permutation
+				bestPermutation = new int[permutationGenerator.n];
+				float bestLength = Mathf.Infinity;
+				while (permutationGenerator.next()) {
+					if(permutationGenerator.isValid(nbGuard)){
+						float tmpLength = 0f;
+						for(int r=nbPoint;r<nbPoint+nbGuard;r++){
+							tmpLength += getPathLength(r,permutationGenerator.array,nbGuard,nbPoint);
+							if(tmpLength>bestLength)
+							{
+								break;
+							}
+						}
+						if(tmpLength > 0f && tmpLength < bestLength){
+							bestLength = tmpLength;
+							bestPermutation = (int[])permutationGenerator.array.Clone();
 						}
 					}
-//					curPerm += " has length " + tmpLength;
-//					print (curPerm);
-					if(tmpLength > 0f && tmpLength < bestLength){
-						bestLength = tmpLength;
-						bestPermutation = (int[])permutationGenerator.array.Clone();
-//						String msgtmp = "Best Permutation so far= ";
-//						for(int i=0;i<permutationGenerator.n;i++){
-//							msgtmp += bestPermutation[i] + ",";
-//						}
-//						print (msgtmp + " with length " + bestLength);
-					}
 				}
+				String msg = "Best Permutation = ";
+				for(int i=0;i<permutationGenerator.n;i++){
+					msg += bestPermutation[i] + ",";
+				}
+				print (msg + "with length " + bestLength);
+
 			}
-			String msg = "Best Permutation = ";
-			for(int i=0;i<permutationGenerator.n;i++){
-				msg += bestPermutation[i] + ",";
-			}
-			print (msg + "with length " + bestLength);
-			
 			if(showDynamicGuarding){
 				print ("Displaying...");
 				displayDynamicGuarding(bestPermutation,nbPoint,nbGuard);
