@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+//using System.Diagnostics;
 	
 namespace Agent
 {
@@ -11,10 +12,14 @@ namespace Agent
 	{
 		public bool showDynamicGuarding;
 
-		public bool recomputePaths = true;
-		private bool previousRecomputePaths = false;
+		public bool initialization = true;
 
 		private int[] bestPermutation;
+		private float[,] costs;
+
+		public Color dynamicPathColor = Color.blue;
+
+		public static List< LinkedList<Waypoint> > Paths = new List< LinkedList<Waypoint> >();
 
 		void Start ()
 		{
@@ -41,9 +46,22 @@ namespace Agent
 				return;
 			print ("nbPoint = " + nbPoint + " nbGuard = " + nbGuard);
 
-			if(previousRecomputePaths != recomputePaths){
-				previousRecomputePaths = recomputePaths;
+			if(initialization){
+				initialization = false;
+				Paths.Clear();
 				Permutation permutationGenerator = new Permutation (nbGuard + nbPoint);
+
+				// Create a matrix with all cost
+				costs = new float[nbGuard+nbPoint,nbGuard+nbPoint];
+				GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
+
+				for(int i=0;i<nbGuard+nbPoint;i++){
+					for(int j=0;j<nbGuard+nbPoint;j++){
+						Vector3 start = (i<nbPoint) ? Areas.setOfPointCoveringArea.ElementAt(i) : guards[i-nbPoint].transform.position;
+						Vector3 end = (j < nbPoint) ? Areas.setOfPointCoveringArea.ElementAt(j) : guards[j-nbPoint].transform.position;
+						costs[i,j] = PathFinderAStar.find(start,end).lengthPath;
+					}
+				}
 
 				// Compute best permutation
 				bestPermutation = new int[permutationGenerator.n];
@@ -70,11 +88,14 @@ namespace Agent
 				}
 				print (msg + "with length " + bestLength);
 
+				createPaths(bestPermutation,nbPoint,nbGuard);
+
 			}
 			if(showDynamicGuarding){
 				print ("Displaying...");
 				displayDynamicGuarding(bestPermutation,nbPoint,nbGuard);
 			}
+
 		}
 
 		float getPathLength(int indexGuard, int[] currentPermutation, int nbGuard, int nbPoint){
@@ -96,16 +117,11 @@ namespace Agent
 				return 0f;
 			}
 			GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
-			PathFinderAStar.Path tmpPath = PathFinderAStar.find (guards[indexGuard-nbPoint].transform.position,
-			                                                     Areas.setOfPointCoveringArea.ElementAt (indexPath.ElementAt (0)));
-			float pathLength = tmpPath.lengthPath;
+			float pathLength = costs [indexGuard, indexPath.ElementAt (0)];
+
+
 			for(int i=0;i<indexPath.Count-1;i++){
-				int startIndex = indexPath.ElementAt(i);
-				int endIndex = indexPath.ElementAt(i+1);
-				Vector3 start = Areas.setOfPointCoveringArea.ElementAt(startIndex);
-				Vector3 end = Areas.setOfPointCoveringArea.ElementAt(endIndex);
-				tmpPath = PathFinderAStar.find(start,end);
-				pathLength += tmpPath.lengthPath;
+				pathLength += costs[indexPath.ElementAt(i),indexPath.ElementAt(i+1)];
 			}
 			return pathLength;
 		}
@@ -137,9 +153,9 @@ namespace Agent
 			PathFinderAStar.Path tmpPath = PathFinderAStar.find (guards[indexGuard-nbPoint].transform.position,
 			                                         Areas.setOfPointCoveringArea.ElementAt (indexPath.ElementAt (0)));
 
-			Debug.DrawLine (guards [indexGuard - nbPoint].transform.position, tmpPath.waypoints.ElementAt (0).pos, Color.blue);
+			Debug.DrawLine (guards [indexGuard - nbPoint].transform.position, tmpPath.waypoints.ElementAt (0).pos, dynamicPathColor);
 			for (int i=0; i<tmpPath.waypoints.Count-1; i++) {
-				Debug.DrawLine(tmpPath.waypoints.ElementAt(i).pos,tmpPath.waypoints.ElementAt(i+1).pos,Color.blue);		
+				Debug.DrawLine(tmpPath.waypoints.ElementAt(i).pos,tmpPath.waypoints.ElementAt(i+1).pos,dynamicPathColor);		
 			}
 
 			for(int i=0;i<indexPath.Count-1;i++){
@@ -148,11 +164,55 @@ namespace Agent
 				Vector3 start = Areas.setOfPointCoveringArea.ElementAt(startIndex);
 				Vector3 end = Areas.setOfPointCoveringArea.ElementAt(endIndex);
 				tmpPath = PathFinderAStar.find(start,end);
-				Debug.DrawLine (start, tmpPath.waypoints.ElementAt (0).pos, Color.blue);
+				Debug.DrawLine (start, tmpPath.waypoints.ElementAt (0).pos, dynamicPathColor);
 				for (int w=0; w<tmpPath.waypoints.Count-1; w++) {
-					Debug.DrawLine(tmpPath.waypoints.ElementAt(w).pos,tmpPath.waypoints.ElementAt(w+1).pos,Color.blue);		
+					Debug.DrawLine(tmpPath.waypoints.ElementAt(w).pos,tmpPath.waypoints.ElementAt(w+1).pos,dynamicPathColor);		
 				}
 			}
+		}
+
+		void createPaths(int [] permutation, int nbPoint, int nbGuard){
+			for(int r=nbPoint;r<nbPoint;r++){
+				Paths.Add (createPath (r,permutation,nbGuard,nbPoint));
+			}
+		}
+
+		LinkedList<Waypoint> createPath(int indexGuard, int[] permutation, int nbGuard, int nbPoint){
+			LinkedList<Waypoint> path = new LinkedList<Waypoint> ();
+			int indexGuardInPermutation = 0;
+			while(permutation[indexGuardInPermutation] != indexGuard){
+				indexGuardInPermutation++;
+			}
+			List<int> indexPath = new List<int> ();
+			int currentIndex = indexGuardInPermutation+1;
+			if(currentIndex >= nbGuard+nbPoint)
+				return path;
+			while(currentIndex < nbGuard + nbPoint && permutation[currentIndex] < nbPoint ){
+				indexPath.Add (permutation[currentIndex]);
+				currentIndex++;
+			}
+			if(!indexPath.Any()){
+				return path;
+			}
+			GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
+			PathFinderAStar.Path tmpPath = PathFinderAStar.find (guards[indexGuard-nbPoint].transform.position,
+			                                                     Areas.setOfPointCoveringArea.ElementAt (indexPath.ElementAt (0)));
+			for (int i=0; i<tmpPath.waypoints.Count; i++) {
+				path.AddLast(tmpPath.waypoints.ElementAt(i));	
+			}
+			
+			for(int i=0;i<indexPath.Count-1;i++){
+				int startIndex = indexPath.ElementAt(i);
+				int endIndex = indexPath.ElementAt(i+1);
+				Vector3 start = Areas.setOfPointCoveringArea.ElementAt(startIndex);
+				Vector3 end = Areas.setOfPointCoveringArea.ElementAt(endIndex);
+				tmpPath = PathFinderAStar.find(start,end);
+				for (int w=0; w<tmpPath.waypoints.Count; w++) {
+					path.AddLast(tmpPath.waypoints.ElementAt(w));
+				}
+			}
+
+			return path;
 		}
 	}
 }

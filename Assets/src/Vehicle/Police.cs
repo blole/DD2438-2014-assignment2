@@ -16,6 +16,8 @@ namespace Agent
 		private bool asAStaticGoal = false;
 		private Vector3 staticGuardingGoal;
 
+		private bool asADynamicPath = false;
+
 		void Start()
 		{
 		}
@@ -23,6 +25,9 @@ namespace Agent
 		void Update ()
 		{
 			if(guardType == 0){
+				if(asADynamicPath){
+					asADynamicPath = false;
+				}
 				if(asAStaticGoal){
 					asAStaticGoal = false;
 					Areas.decreaseIndexStaticGuarding();
@@ -41,6 +46,9 @@ namespace Agent
 				}
 			}
 			else if(guardType == 1 ){
+				if(asADynamicPath){
+					asADynamicPath = false;
+				}
 				if(!asAStaticGoal){
 					int indexNextPoint = Areas.getNextIndexInterestingPoint();
 					if(indexNextPoint != -1){
@@ -65,6 +73,42 @@ namespace Agent
 						NavigateTo(staticGuardingGoal);
 					else
 						moveToward(transform.position);
+			}
+			else if(guardType == 2){
+				if(asAStaticGoal){
+					asAStaticGoal = false;
+					Areas.decreaseIndexStaticGuarding();
+				}
+
+				if(!asADynamicPath){
+					GameObject[] guards = GameObject.FindGameObjectsWithTag("police");
+					int index = 0;
+					foreach(GameObject guard in guards){
+						if(guard == this)
+							break;
+						else
+							index++;
+					}
+					this.path = Secure.Paths.ElementAt(index);
+					asADynamicPath = true;
+				}
+				else{
+					if (UnityEngine.Random.Range(0, 100) == 0){
+						staticGuardingGoal = PhysicsHelper.randomPointOnFloor(Waypoints.radius);
+						NavigateTo(staticGuardingGoal);
+					}
+				}
+				if(path.Count > 0){
+					if (moveToward(path.First().pos))
+						path.RemoveFirst();
+				}
+				else
+					if((staticGuardingGoal - transform.position).magnitude > .1f)
+						NavigateTo(staticGuardingGoal);
+				else
+					moveToward(transform.position);
+
+
 			}
 		}
 

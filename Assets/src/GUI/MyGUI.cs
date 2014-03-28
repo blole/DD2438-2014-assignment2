@@ -56,8 +56,10 @@ namespace Agent
 			if (GUI.Button(new Rect(280,30,120,30), "Static Guarding"))	{
 				GameObject.FindObjectOfType<PoliceSpawner>().Behavior = 1;
 			}
-			if (GUI.Button(new Rect(410,30,120,30), "Secure"))
+			if (GUI.Button(new Rect(410,30,120,30), "Secure")){
+				GameObject.FindObjectOfType<Secure>().initialization = true;
 				GameObject.FindObjectOfType<PoliceSpawner>().Behavior = 2;
+			}
 			if (GUI.Button(new Rect(540,30,120,30), "Search & Destroy"))
 				GameObject.FindObjectOfType<PoliceSpawner>().Behavior = 3;
 			

@@ -214,6 +214,8 @@ namespace Agent
 					}
 				}
 			}
+
+
 		}
 
 		public int countNbVisibleFrom(Vector3 point, List<int> indexUncoveredArea){

@@ -54,22 +54,36 @@ namespace Agent
 			int nbPoint = n - nbGuard;
 			int nbPointRemaining = nbPoint;
 			int currentIndex = 0;
+			float tmp = (float)nbPoint / (float)nbGuard;
+			tmp = (nbPoint / nbGuard == tmp) ? tmp : tmp + 1f;
+			int maxPointToCheck = (int)tmp;
 			if(array[currentIndex]<nbPoint){
 				return false;
 			}
 			else{
 				currentIndex++;
 			}
-			while(currentIndex < n){
+			int startingIndex = currentIndex;
+			while(currentIndex < n && (currentIndex-startingIndex)<=maxPointToCheck ){
 				if(array[currentIndex]<nbPoint){
 					nbPointRemaining--;
 					currentIndex++;
 				}
 				else{
 					currentIndex++;
+					startingIndex = currentIndex;
 				}
 			}
 			return (nbPointRemaining==0);
+		}
+
+		public String toString(){
+			String msg = "{";
+			for(int i=0; i <n-1;i++){
+				msg += array[i] + ",";
+			}
+			msg += array [n - 1] + "}";
+			return msg;
 		}
    }
 }
