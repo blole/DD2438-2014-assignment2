@@ -1,4 +1,4 @@
-\documentclass[a4paper,9pt,twocolumn]{extarticle}
+\documentclass[a4paper,8pt,twocolumn]{extarticle}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage[center]{caption}
@@ -71,12 +71,14 @@
 %---------------------------------------------
 % Numerotation Handling
 %---------------------------------------------
-% \setcounter{section}{3}
-% \usepackage[explicit]{titlesec}
-% % \titleformat{<command>}[<shape>]{<format>}{<label>}{<sep>}{<before>}[<after>]
-% \titleformat{\subsubsection}[hang]{\normalfont\normalsize\bfseries}%
-%     {}{4pt}%
-%     {#1 \arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+ %\setcounter{section}{3}
+ \usepackage[explicit]{titlesec}
+  %\titleformat{<command>}[<shape>]{<format>}{<label>}{<sep>}{<before>}[<after>]
+	\titleformat{\section}[block]{\Large\bfseries\filcenter}{\arabic{section}.}{1em}{#1}
+ %\titleformat{\section}[hang]{\normalfont\Large\bfseries}%
+     %{}{8pt}%
+     %{\arabic{section}. #1}
+
 
 
 %---------------------------------------------
@@ -85,14 +87,22 @@
 \usepackage{lipsum}
 
 %---------------------------------------------
+% Enumeration spacing
+%---------------------------------------------
+\usepackage{enumitem}
+\setlist[enumerate]{itemsep=0mm}
+\setlist[description]{itemsep=0mm}
+
+%---------------------------------------------
 % Algorithm form
 %---------------------------------------------
 \newtheorem{algorithm}{Algorithm}[section]
 \newtheorem{criteria}{Criteria}[section]
+\newtheorem{problem}{Problem}
     
 \begin{document}
 
-% Indentation value
+% Indentation size
 %\setlength\parindent{0em}
 
  \maketitle
@@ -104,6 +114,9 @@
 \vspace{0.5cm}
 
 \input{part/abstract}
+
+\section{The three problems}
+\input{part/threeProb}
 
 \section{Environment representation}
 \input{part/envRepresentation}

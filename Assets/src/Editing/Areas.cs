@@ -34,6 +34,7 @@ namespace Agent
 		public bool showPointsCoveringArea = false;
 		public bool showAreas;
 		public bool showGrid;
+		public Color areasColor = Color.red;
 
 		// Static guarding
 		private static int indexPointForStaticGuarding = -1;
@@ -101,7 +102,7 @@ namespace Agent
 				areas.Clear();
 				setOfPointCoveringArea.Clear();
 				Area.nbAreas = 0;
-				indexPointForStaticGuarding = 0;
+				indexPointForStaticGuarding = -1;
 
 				// Creation of the convex set cover
 				Boolean[,] coveredCells = new Boolean[nbRow, nbCol];
@@ -213,6 +214,8 @@ namespace Agent
 					}
 				}
 			}
+
+
 		}
 
 		public int countNbVisibleFrom(Vector3 point, List<int> indexUncoveredArea){
@@ -255,10 +258,10 @@ namespace Agent
 			for(int i=0;i<Area.nbAreas;i++){
 				Area currentArea = areas[i];
 				Vector3[] areaCoord = currentArea.getAreaCoord();
-				Debug.DrawLine(areaCoord[0],areaCoord[1],Color.red);
-				Debug.DrawLine(areaCoord[0],areaCoord[2],Color.red);
-				Debug.DrawLine(areaCoord[1],areaCoord[3],Color.red);
-				Debug.DrawLine(areaCoord[2],areaCoord[3],Color.red);
+				Debug.DrawLine(areaCoord[0],areaCoord[1],areasColor);
+				Debug.DrawLine(areaCoord[0],areaCoord[2],areasColor);
+				Debug.DrawLine(areaCoord[1],areaCoord[3],areasColor);
+				Debug.DrawLine(areaCoord[2],areaCoord[3],areasColor);
 			}
 		}
 
@@ -270,12 +273,15 @@ namespace Agent
 			}
 			else{
 				indexPointForStaticGuarding++;
+				print ("Returning " + indexPointForStaticGuarding);
 				return (indexPointForStaticGuarding);
 			}
 		}
 
 		public static void decreaseIndexStaticGuarding(){
 			indexPointForStaticGuarding--;
+			if(indexPointForStaticGuarding<-1)
+				indexPointForStaticGuarding=-1;
 		}
 	}
 }

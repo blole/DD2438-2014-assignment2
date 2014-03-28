@@ -15,7 +15,7 @@ namespace Agent
 				return null;
 
 			if (PhysicsHelper.isClearPath(start, goal, Waypoints.radius))
-				return new PathStep(new Waypoint(goal)).toPath();
+				return new PathStep(new Waypoint(goal), (start-goal).projectDown().magnitude).toPath();
 			
 			bool[] visited = new bool[Waypoints.waypoints.Count];
 			PriorityQueue<float, PathStep> queue = new PriorityQueue<float, PathStep>();
@@ -23,7 +23,7 @@ namespace Agent
 			foreach (Waypoint waypoint in Waypoints.waypoints)
 			{
 				if (PhysicsHelper.isClearPath(start, waypoint.pos, Waypoints.radius))
-					queue.Enqueue((start-waypoint.pos).projectDown().magnitude+(waypoint.pos-goal).projectDown().magnitude, new PathStep(waypoint));
+					queue.Enqueue((start-waypoint.pos).projectDown().magnitude+(waypoint.pos-goal).projectDown().magnitude, new PathStep(waypoint, (start-waypoint.pos).projectDown().magnitude));
 			}
 
 			while (!queue.IsEmpty)
@@ -53,11 +53,11 @@ namespace Agent
 			public Waypoint wp;
 			public float totalLength;
 
-			public PathStep(Waypoint wp)
+			public PathStep(Waypoint wp, float totalLength)
 			{
 				this.previous = null;
 				this.wp = wp;
-				this.totalLength = 0;
+				this.totalLength = totalLength;
 			}
 			
 			public PathStep(PathStep previous, Waypoint wp)
@@ -90,6 +90,15 @@ namespace Agent
 			public Path(LinkedList<Waypoint> waypoints, float lengthPath){
 				this.waypoints = waypoints;
 				this.lengthPath = lengthPath;
+			}
+
+			public String toString(){
+				String result = "Path = ";
+				for(int i=0;i<this.waypoints.Count;i++){
+					result += this.waypoints.ElementAt(i).pos.ToString() + " - ";
+				}
+				result += " with length " + this.lengthPath + ".";
+				return result;
 			}
 		}
 	}

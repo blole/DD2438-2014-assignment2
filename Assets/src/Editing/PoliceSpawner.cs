@@ -8,6 +8,7 @@ namespace Agent
 {
 	[ExecuteInEditMode]
 	public class PoliceSpawner : MonoBehaviour {
+		[Range(0,10)]
 		public int policeCount;
 		public Transform policePrefab;
 		public int behavior;
@@ -88,6 +89,7 @@ namespace Agent
 			pos.y = Waypoints.radius;
 			Transform t = (Transform) Instantiate(policePrefab, pos, rotation);
 			((Police)t.GetComponent ("Police")).guardType = behavior;
+			((ShowFOV)t.GetComponent ("ShowFOV")).show = MyGUI.FOVstatus;
 			t.localScale = Vector3.one*Waypoints.radius*2;
 			t.parent = transform;
 		}

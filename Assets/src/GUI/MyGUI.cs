@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
@@ -7,6 +7,8 @@ using System.Collections.Generic;
 namespace Agent
 {
 	public class MyGUI : MonoBehaviour {
+
+		public static bool FOVstatus = false;
 
 		void OnGUI () {
 			if (GUI.Button(new Rect(10,10,120,30), "Add guard"))
@@ -28,6 +30,15 @@ namespace Agent
 				GameObject.FindObjectOfType<Areas>().updateAreas();
 			}
 
+			if (GUI.Button(new Rect(10,171,120,30), (FOVstatus ? "Hide FOV" : "Show FOV"))){
+				FOVstatus = !FOVstatus;
+				GameObject[] guards = GameObject.FindGameObjectsWithTag("police");
+				print (""+ (guards.Length) + " <----------- HERE");
+				foreach(GameObject guard in guards){
+					((ShowFOV)guard.GetComponent("ShowFOV")).show = FOVstatus;
+				}
+			}
+
 			// Robot count
 			int nbRobot = GameObject.FindObjectOfType<PoliceSpawner> ().policeCount;
 			String msgRobot = "";
@@ -45,8 +56,11 @@ namespace Agent
 			if (GUI.Button(new Rect(280,30,120,30), "Static Guarding"))	{
 				GameObject.FindObjectOfType<PoliceSpawner>().Behavior = 1;
 			}
-			if (GUI.Button(new Rect(410,30,120,30), "Secure"))
+			if (GUI.Button(new Rect(410,30,120,30), "Secure")){
+				Secure.initialization = true;
+				Secure.pathComputed = false;
 				GameObject.FindObjectOfType<PoliceSpawner>().Behavior = 2;
+			}
 			if (GUI.Button(new Rect(540,30,120,30), "Search & Destroy"))
 				GameObject.FindObjectOfType<PoliceSpawner>().Behavior = 3;
 			

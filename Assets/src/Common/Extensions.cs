@@ -24,9 +24,19 @@ namespace Agent
 			return new Vector3(v.X, v.Y, v.Z);
 		}
 
+		public static Vec3 toVec3(this Vector2 v)
+		{
+			return new Vec3 {X=v.x, Z=v.y};
+		}
+		
 		public static Vec3 toVec3(this Vector3 v)
 		{
 			return new Vec3 {X=v.x, Y=v.y, Z=v.z};
+		}
+		
+		public static ContourVertex[] toContour(this IEnumerable<Vector2> vs)
+		{
+			return vs.Select(v=>new ContourVertex {Position = v.toVec3()}).ToArray();
 		}
 		
 		public static ContourVertex[] toContour(this IEnumerable<Vector3> vs)
