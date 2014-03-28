@@ -89,8 +89,12 @@ namespace Agent
 						else
 							index++;
 					}
-					this.path = Secure.Paths.ElementAt(index);
-					asADynamicPath = true;
+					print ("index guard = " + index);
+					index = 0;
+					if(Secure.pathComputed){
+						this.path = Secure.Paths.ElementAt(index);
+						asADynamicPath = true;
+					}
 				}
 				else{
 					if (UnityEngine.Random.Range(0, 100) == 0){

@@ -12,7 +12,8 @@ namespace Agent
 	{
 		public bool showDynamicGuarding;
 
-		public bool initialization = true;
+		public static bool initialization = false;
+		public static bool pathComputed = false;
 
 		private int[] bestPermutation;
 		private float[,] costs;
@@ -26,18 +27,18 @@ namespace Agent
 
 		}
 
-#if UNITY_EDITOR
-		void LateUpdate ()
+//#if UNITY_EDITOR
+		void Update ()
 		{
-			print ("----------------- RECOMPUTING! --------------------");
-			if (!Application.isPlaying){
+//			print ("----------------- RECOMPUTING! --------------------");
+//			if (!Application.isPlaying){
 				int nbGuard = GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount;
 				if(nbGuard > 0){
 					computeGuardPath(GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount);
 				}
-			}
+//			}
 		}
-#endif
+//#end
 
 		void computeGuardPath (int nbGuard)
 		{
@@ -47,6 +48,7 @@ namespace Agent
 			print ("nbPoint = " + nbPoint + " nbGuard = " + nbGuard);
 
 			if(initialization){
+				pathComputed = false;
 				initialization = false;
 				Paths.Clear();
 				Permutation permutationGenerator = new Permutation (nbGuard + nbPoint);
@@ -89,7 +91,7 @@ namespace Agent
 				print (msg + "with length " + bestLength);
 
 				createPaths(bestPermutation,nbPoint,nbGuard);
-
+				pathComputed = true;
 			}
 			if(showDynamicGuarding){
 				print ("Displaying...");
