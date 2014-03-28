@@ -17,6 +17,9 @@ namespace Agent
 		public static Dictionary<Waypoint, List<Waypoint>> neighbors = new Dictionary<Waypoint, List<Waypoint>>();
 		private Vector3 offset = Vector3.up * 0.01f;
 
+		public Color waypointColor;
+		public Color neighborColor;
+
 		void Awake()
 		{
 			singleton = this;
@@ -67,13 +70,8 @@ namespace Agent
 		{
 			if (show)
 			{
-				int segments = 16;
 				foreach (Waypoint waypoint in waypoints)
-				{
-					Vector3 c = waypoint.pos+offset;
-					for (int i=0; i<segments; i++)
-						Debug.DrawLine(c+Vector2.up.turn(360f/segments*i).toVector3()*radius, c+Vector2.up.turn(360f/segments*(i+1)).toVector3()*radius, Color.green);
-				}
+					DebugHelper.DrawCircle(waypoint.pos+offset, radius, 16, waypointColor);
 			}
 		}
 		void drawNeighbors(bool show)
@@ -84,7 +82,7 @@ namespace Agent
 				{
 					Waypoint w = pair.Key;
 					foreach (Waypoint u in pair.Value)
-						Debug.DrawLine(w.pos+offset, u.pos+offset, Color.green);
+						Debug.DrawLine(w.pos+offset, u.pos+offset, neighborColor);
 				}
 			}
 		}
