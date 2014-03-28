@@ -16,7 +16,7 @@ namespace Agent
 
 		private MeshFilter fovMesh;
 
-		void LateUpdate ()
+		void Update ()
 		{
 			if (show)
 				updateFovMesh();
