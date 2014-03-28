@@ -49,5 +49,27 @@ namespace Agent
 			array [i] = array [j];
 			array [j] = tmp;
 		}
+
+		public bool isValid(int nbGuard){
+			int nbPoint = n - nbGuard;
+			int nbPointRemaining = nbPoint;
+			int currentIndex = 0;
+			if(array[currentIndex]<nbPoint){
+				return false;
+			}
+			else{
+				currentIndex++;
+			}
+			while(currentIndex < n){
+				if(array[currentIndex]<nbPoint){
+					nbPointRemaining--;
+					currentIndex++;
+				}
+				else{
+					currentIndex++;
+				}
+			}
+			return (nbPointRemaining==0);
+		}
    }
 }

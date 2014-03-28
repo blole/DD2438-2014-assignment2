@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
@@ -35,26 +35,31 @@ namespace Agent
 			int[] bestPermutation = new int[permutationGenerator.n];
 			float bestLength = Mathf.Infinity;
 			while (permutationGenerator.next()) {
-				String curPerm = "Current permutation = ";
-				for(int i=0;i<permutationGenerator.n;i++){
-					curPerm += permutationGenerator.array[i] + ",";
-				}
-				float tmpLength = 0f;
-				for(int r=nbPoint;r<nbPoint+nbGuard;r++){
-					tmpLength += getPathLength(r,permutationGenerator.array,nbGuard,nbPoint);
-					if(tmpLength>bestLength)
-						break;
-				}
-				curPerm += " has length " + tmpLength;
-				print (curPerm);
-				if(tmpLength > 0f && tmpLength < bestLength){
-					bestLength = tmpLength;
-					bestPermutation = (int[])permutationGenerator.array.Clone();
-					String msgtmp = "Best Permutation so far= ";
+				if(permutationGenerator.isValid(nbGuard)){
+					String curPerm = "Current permutation = ";
 					for(int i=0;i<permutationGenerator.n;i++){
-						msgtmp += bestPermutation[i] + ",";
+						curPerm += permutationGenerator.array[i] + ",";
 					}
-					print (msgtmp + " with length " + bestLength);
+					float tmpLength = 0f;
+					for(int r=nbPoint;r<nbPoint+nbGuard;r++){
+						tmpLength += getPathLength(r,permutationGenerator.array,nbGuard,nbPoint);
+						if(tmpLength>bestLength)
+						{
+							print("Break case");
+							break;
+						}
+					}
+					curPerm += " has length " + tmpLength;
+					print (curPerm);
+					if(tmpLength > 0f && tmpLength < bestLength){
+						bestLength = tmpLength;
+						bestPermutation = (int[])permutationGenerator.array.Clone();
+						String msgtmp = "Best Permutation so far= ";
+						for(int i=0;i<permutationGenerator.n;i++){
+							msgtmp += bestPermutation[i] + ",";
+						}
+						print (msgtmp + " with length " + bestLength);
+					}
 				}
 			}
 			String msg = "Best Permutation = ";
@@ -78,25 +83,41 @@ namespace Agent
 			int currentIndex = indexGuardInPermutation+1;
 			if(currentIndex >= nbGuard+nbPoint)
 				return 0f;
+
+			/* DEBUG
+			String debug = "Permutation ";
+			for (int i=0; i<nbGuard+nbPoint; i++) {
+				debug += currentPermutation[i] + ",";
+			}
+			debug += " for guard " + indexGuard + "has the following point attributed: ";
+			*/
+
 			while(currentIndex < nbGuard + nbPoint && currentPermutation[currentIndex] < nbPoint ){
 //				print ("index = " + currentIndex + "value = " + currentPermutation[currentIndex]);
 				indexPath.Add (currentPermutation[currentIndex]);
+				// debug += currentPermutation[currentIndex] + ",";
             	currentIndex++;
 			}
+			
+			// print (debug);
 			if(!indexPath.Any()){
 				return 0f;
 			}
 			GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
-			float pathLength = PathFinderAStar.find (guards[indexGuard-nbPoint].transform.position,
-			                                                     Areas.setOfPointCoveringArea.ElementAt (indexPath.ElementAt (0))).lengthPath;
+			PathFinderAStar.Path tmpPath = PathFinderAStar.find (guards[indexGuard-nbPoint].transform.position,
+			                                                     Areas.setOfPointCoveringArea.ElementAt (indexPath.ElementAt (0)));
+			float pathLength = tmpPath.lengthPath;
+			String globalPathmsg = tmpPath.toString ();
 			for(int i=0;i<indexPath.Count-1;i++){
 				int startIndex = indexPath.ElementAt(i);
 				int endIndex = indexPath.ElementAt(i+1);
 				Vector3 start = Areas.setOfPointCoveringArea.ElementAt(startIndex);
 				Vector3 end = Areas.setOfPointCoveringArea.ElementAt(endIndex);
-				PathFinderAStar.Path tmpPath = PathFinderAStar.find(start,end);
+				tmpPath = PathFinderAStar.find(start,end);
 				pathLength += tmpPath.lengthPath;
+				globalPathmsg += tmpPath.toString();
 			}
+			print ("Global path for guard " + indexGuard + " = " + globalPathmsg);
 			return pathLength;
 		}
 
@@ -128,6 +149,7 @@ namespace Agent
 			GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
 			PathFinderAStar.Path tmpPath = PathFinderAStar.find (guards[indexGuard-nbPoint].transform.position,
 			                                         Areas.setOfPointCoveringArea.ElementAt (indexPath.ElementAt (0)));
+
 			Debug.DrawLine (guards [indexGuard - nbPoint].transform.position, tmpPath.waypoints.ElementAt (0).pos, Color.blue);
 			for (int i=0; i<tmpPath.waypoints.Count-1; i++) {
 				Debug.DrawLine(tmpPath.waypoints.ElementAt(i).pos,tmpPath.waypoints.ElementAt(i).pos,Color.blue);		
