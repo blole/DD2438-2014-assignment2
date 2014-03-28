@@ -1,1 +1,14 @@
-\lipsum[1]
+This problem is solved using the greedy algorithm \ref{algStaticGuard}, which generate a set of point $ S = P_{1\leq i \leq n}$ from which all the environment is visible.
+
+\begin{algorithm}
+This algorithm gives a way to find a set of point from which all the area is visible.
+\begin{enumerate}
+	\item Generate a set of potential points (we used the center of every grid cell).
+	\item Create a set of unseen areas $U_i = C_i$ (see alg. \ref{algoConvexCover}).
+	\item Find the point $p$ from which most of the area is visible.
+	\item Add this point to the set of point $S$.
+	\item Remove areas visible from $p$ from $U$.
+	\item While there are unseen area, go to 3.
+\end{enumerate}
+\label{algStaticGuard}
+\end{algorithm}
