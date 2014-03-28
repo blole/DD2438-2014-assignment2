@@ -89,6 +89,7 @@ namespace Agent
 			pos.y = Waypoints.radius;
 			Transform t = (Transform) Instantiate(policePrefab, pos, rotation);
 			((Police)t.GetComponent ("Police")).guardType = behavior;
+			((ShowFOV)t.GetComponent ("ShowFOV")).show = MyGUI.FOVstatus;
 			t.localScale = Vector3.one*Waypoints.radius*2;
 			t.parent = transform;
 		}

@@ -111,7 +111,6 @@ namespace Agent
 		}
 
 		void displayDynamicGuarding(int[] permutation,int nbPoint,int nbGuard){
-			GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
 			for(int r=nbPoint;r<nbPoint+nbGuard;r++){
 				print ("Displaying path for robot " + (r-nbPoint));
 				displayGuardPath(r, permutation, nbGuard, nbPoint);

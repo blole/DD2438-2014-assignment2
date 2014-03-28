@@ -8,6 +8,8 @@ namespace Agent
 {
 	public class MyGUI : MonoBehaviour {
 
+		public static bool FOVstatus = false;
+
 		void OnGUI () {
 			if (GUI.Button(new Rect(10,10,120,30), "Add guard"))
 				GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount++;
@@ -26,6 +28,15 @@ namespace Agent
 				GameObject.FindObjectOfType<ObstacleSpawner>().ObstacleCount--;
 				GameObject.FindObjectOfType<Areas>().initialization = true;
 				GameObject.FindObjectOfType<Areas>().updateAreas();
+			}
+
+			if (GUI.Button(new Rect(10,171,120,30), (FOVstatus ? "Hide FOV" : "Show FOV"))){
+				FOVstatus = !FOVstatus;
+				GameObject[] guards = GameObject.FindGameObjectsWithTag("police");
+				print (""+ (guards.Length) + " <----------- HERE");
+				foreach(GameObject guard in guards){
+					((ShowFOV)guard.GetComponent("ShowFOV")).show = FOVstatus;
+				}
 			}
 
 			// Robot count
