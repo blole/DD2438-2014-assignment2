@@ -273,7 +273,7 @@ namespace Agent
 			}
 			else{
 				indexPointForStaticGuarding++;
-				print ("Returning " + indexPointForStaticGuarding);
+//				print ("Returning " + indexPointForStaticGuarding);
 				return (indexPointForStaticGuarding);
 			}
 		}

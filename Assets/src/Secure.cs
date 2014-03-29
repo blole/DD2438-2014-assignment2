@@ -12,35 +12,32 @@ namespace Agent
 	{
 		public bool showDynamicGuarding;
 
-		public static bool initialization = false;
-		public static bool pathComputed = false;
+		public bool initialization = false;
 
-		private int[] bestPermutation;
+		private static int[] bestPermutation;
 		private float[,] costs;
 
 		public Color dynamicPathColor = Color.blue;
-
-		public static List< LinkedList<Waypoint> > Paths = new List< LinkedList<Waypoint> >();
 
 		void Start ()
 		{
 
 		}
 
-//#if UNITY_EDITOR
+#if UNITY_EDITOR
 		void Update ()
 		{
 //			print ("----------------- RECOMPUTING! --------------------");
-//			if (!Application.isPlaying){
+			if (!Application.isPlaying){
 				int nbGuard = GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount;
 				if(nbGuard > 0){
 					computeGuardPath(GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount);
 				}
-//			}
+			}
 		}
-//#end
+#endif
 
-		void computeGuardPath (int nbGuard)
+		public void computeGuardPath (int nbGuard)
 		{
 			int nbPoint = Areas.setOfPointCoveringArea.Count ();
 			if(nbPoint == 0)
@@ -48,9 +45,7 @@ namespace Agent
 			print ("nbPoint = " + nbPoint + " nbGuard = " + nbGuard);
 
 			if(initialization){
-				pathComputed = false;
 				initialization = false;
-				Paths.Clear();
 				Permutation permutationGenerator = new Permutation (nbGuard + nbPoint);
 
 				// Create a matrix with all cost
@@ -89,9 +84,6 @@ namespace Agent
 					msg += bestPermutation[i] + ",";
 				}
 				print (msg + "with length " + bestLength);
-
-				createPaths(bestPermutation,nbPoint,nbGuard);
-				pathComputed = true;
 			}
 			if(showDynamicGuarding){
 				print ("Displaying...");
@@ -173,48 +165,24 @@ namespace Agent
 			}
 		}
 
-		void createPaths(int [] permutation, int nbPoint, int nbGuard){
-			for(int r=nbPoint;r<nbPoint;r++){
-				Paths.Add (createPath (r,permutation,nbGuard,nbPoint));
-			}
-		}
-
-		LinkedList<Waypoint> createPath(int indexGuard, int[] permutation, int nbGuard, int nbPoint){
-			LinkedList<Waypoint> path = new LinkedList<Waypoint> ();
-			int indexGuardInPermutation = 0;
-			while(permutation[indexGuardInPermutation] != indexGuard){
+		public static List<int> getIndexPointToVisit(int indexGuard){
+			int nbGuard = GameObject.FindObjectOfType<PoliceSpawner> ().policeCount;
+			int nbPoint = bestPermutation.Length - nbGuard;
+			indexGuard += nbPoint;
+			int indexGuardInPermutation = 0; 
+			while(bestPermutation[indexGuardInPermutation] != indexGuard){
 				indexGuardInPermutation++;
 			}
-			List<int> indexPath = new List<int> ();
 			int currentIndex = indexGuardInPermutation+1;
+			List<int> result = new List<int> ();
 			if(currentIndex >= nbGuard+nbPoint)
-				return path;
-			while(currentIndex < nbGuard + nbPoint && permutation[currentIndex] < nbPoint ){
-				indexPath.Add (permutation[currentIndex]);
+				return result;
+			while(currentIndex < nbGuard + nbPoint && bestPermutation[currentIndex] < nbPoint ){
+				result.Add (bestPermutation[currentIndex]);
 				currentIndex++;
 			}
-			if(!indexPath.Any()){
-				return path;
-			}
-			GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
-			PathFinderAStar.Path tmpPath = PathFinderAStar.find (guards[indexGuard-nbPoint].transform.position,
-			                                                     Areas.setOfPointCoveringArea.ElementAt (indexPath.ElementAt (0)));
-			for (int i=0; i<tmpPath.waypoints.Count; i++) {
-				path.AddLast(tmpPath.waypoints.ElementAt(i));	
-			}
-			
-			for(int i=0;i<indexPath.Count-1;i++){
-				int startIndex = indexPath.ElementAt(i);
-				int endIndex = indexPath.ElementAt(i+1);
-				Vector3 start = Areas.setOfPointCoveringArea.ElementAt(startIndex);
-				Vector3 end = Areas.setOfPointCoveringArea.ElementAt(endIndex);
-				tmpPath = PathFinderAStar.find(start,end);
-				for (int w=0; w<tmpPath.waypoints.Count; w++) {
-					path.AddLast(tmpPath.waypoints.ElementAt(w));
-				}
-			}
+			return result;
 
-			return path;
 		}
 	}
 }

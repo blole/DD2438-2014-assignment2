@@ -57,12 +57,29 @@ namespace Agent
 			float tmp = (float)nbPoint / (float)nbGuard;
 			tmp = (nbPoint / nbGuard == tmp) ? tmp : tmp + 1f;
 			int maxPointToCheck = (int)tmp;
+			// Check if permutation has croissant ordering for guards
 			if(array[currentIndex]<nbPoint){
 				return false;
 			}
 			else{
 				currentIndex++;
 			}
+			int croissantIndex = 0;
+			int idCurrentRobot = nbPoint;
+			while(croissantIndex<n){
+				if(array[croissantIndex]>idCurrentRobot)
+					return false;
+				else{
+					if(array[croissantIndex]<nbPoint)
+						croissantIndex++;
+					else{
+						croissantIndex++;
+						idCurrentRobot++;
+					}
+				}
+			}
+			//
+
 			int startingIndex = currentIndex;
 			while(currentIndex < n && (currentIndex-startingIndex)<=maxPointToCheck ){
 				if(array[currentIndex]<nbPoint){

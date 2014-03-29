@@ -16,7 +16,13 @@ namespace Agent
 		private bool asAStaticGoal = false;
 		private Vector3 staticGuardingGoal;
 
-		private bool asADynamicPath = false;
+		// Dynamic guarding behavior
+		public bool asADynamicPath = false;
+		private List<int> setPointToVisit = new List<int>();
+		private int indexInSet = 0;
+		private bool increasing = true;
+
+		public int indexIdPolice = -1;
 
 		void Start()
 		{
@@ -81,37 +87,59 @@ namespace Agent
 				}
 
 				if(!asADynamicPath){
-					GameObject[] guards = GameObject.FindGameObjectsWithTag("police");
-					int index = 0;
-					foreach(GameObject guard in guards){
-						if(guard == this)
-							break;
-						else
-							index++;
-					}
-					print ("index guard = " + index);
-					index = 0;
-					if(Secure.pathComputed){
-						this.path = Secure.Paths.ElementAt(index);
+						indexInSet = 0;
+						increasing = true;
+//						print ("Determining path for guard " + indexIdPolice);
+						setPointToVisit.Clear();
+						List<int> tmpSet = Secure.getIndexPointToVisit(indexIdPolice);
+						foreach(int i in tmpSet){
+							setPointToVisit.Add (i);
+						}
+//						String debug = "Guard " + this.indexIdPolice + "'s path is now ";
+//						foreach(int l in setPointToVisit){
+//							debug += l + " - ";	
+//						}
+//						print (debug);
 						asADynamicPath = true;
-					}
+						if(setPointToVisit.Count != 0)
+							NavigateTo(Areas.setOfPointCoveringArea.ElementAt(setPointToVisit.ElementAt(indexInSet)));
 				}
-				else{
-					if (UnityEngine.Random.Range(0, 100) == 0){
-						staticGuardingGoal = PhysicsHelper.randomPointOnFloor(Waypoints.radius);
-						NavigateTo(staticGuardingGoal);
-					}
-				}
+
 				if(path.Count > 0){
 					if (moveToward(path.First().pos))
 						path.RemoveFirst();
 				}
-				else
-					if((staticGuardingGoal - transform.position).magnitude > .1f)
-						NavigateTo(staticGuardingGoal);
-				else
-					moveToward(transform.position);
+				else{
+					// If we have reach a checkpoint
+//					print ("Guard " + indexIdPolice + " has " + setPointToVisit.Count + " points to visit and is going to" + indexInSet);
+//					print ("Next point to visit = " + Areas.setOfPointCoveringArea.ElementAt(setPointToVisit.ElementAt(indexInSet)));
+					if(setPointToVisit.Count != 0 && 
+					   (Areas.setOfPointCoveringArea.ElementAt(setPointToVisit.ElementAt(indexInSet)) - transform.position).magnitude < .5f){
+						// Find index next point to visit
 
+						if(increasing){
+							if(indexInSet+1 < this.setPointToVisit.Count)
+								indexInSet++;
+							else{
+								increasing = false;
+								indexInSet--;
+							}
+						}
+						else
+						{
+							if(indexInSet > 0)
+								indexInSet--;
+							else{
+								increasing = true;
+								indexInSet++;
+							}
+						}
+						if(this.setPointToVisit.Count==1)
+							indexInSet=0;
+
+						NavigateTo(Areas.setOfPointCoveringArea.ElementAt(setPointToVisit.ElementAt(indexInSet)));
+					}
+				}
 
 			}
 		}

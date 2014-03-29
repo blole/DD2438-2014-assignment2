@@ -102,6 +102,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guardType: 0
+  asADynamicPath: 0
+  indexIdPolice: -1
 --- !u!114 &11400004
 MonoBehaviour:
   m_ObjectHideFlags: 1
