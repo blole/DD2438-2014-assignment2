@@ -35,6 +35,7 @@ namespace Agent
 		public bool showAreas;
 		public bool showGrid;
 		public Color areasColor = Color.red;
+		public Color pointsColor = Color.yellow;
 
 		// Static guarding
 		private static int indexPointForStaticGuarding = -1;
@@ -205,12 +206,13 @@ namespace Agent
 			}
 
 			if(showPointsCoveringArea){
-				int segments = 16;
+				int segments = 64;
 				for(int k=0; k<setOfPointCoveringArea.Count;k++){
 					Vector3 c = setOfPointCoveringArea.ElementAt(k)+Vector3.up * 0.01f;
 					for (int i=0; i<segments; i++){
 						Debug.DrawLine(c+Vector2.up.turn(360f/segments*i).toVector3()*Waypoints.radius,
-						               c+Vector2.up.turn(360f/segments*(i+1)).toVector3()*Waypoints.radius, Color.yellow);
+						               c+Vector2.up.turn(360f/segments*(i+1)).toVector3()*Waypoints.radius, pointsColor);
+						Debug.DrawLine(c+Vector2.up.turn (360f/segments*i).toVector3()*Waypoints.radius,c,pointsColor);
 					}
 				}
 			}
