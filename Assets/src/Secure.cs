@@ -46,7 +46,7 @@ namespace Agent
 
 			if(initialization){
 				initialization = false;
-				Permutation permutationGenerator = new Permutation (nbGuard + nbPoint);
+				PermutationGenerator permutationGenerator = new PermutationGenerator (nbGuard + nbPoint);
 
 				// Create a matrix with all cost
 				costs = new float[nbGuard+nbPoint,nbGuard+nbPoint];
