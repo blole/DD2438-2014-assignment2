@@ -8,8 +8,8 @@ namespace Agent
 {
 	public static class TabuSearch
 	{
-		private static int STEP_MAX = 100;
-		private static int TABU_LIST_SIZE = 100;
+		private static int STEP_MAX = 10000;
+		private static int TABU_LIST_SIZE = 1000;
 		private static int noImprovement_MAX = 10;
 		private static HashSet<Permutation> tabuHashSet = new HashSet<Permutation>();
 		private static LinkedList<Permutation> tabuLinkedList = new LinkedList<Permutation>();
@@ -24,7 +24,7 @@ namespace Agent
 			Permutation bestPermutation = randomPermutation(nbGuard);
 			Permutation savedbestPermutation = bestPermutation;
 			float bestCost = getCost (nbGuard, bestPermutation, costs);
-			Debug.Log ("First permutation has cost = " + bestCost);
+//			Debug.Log ("First permutation has cost = " + bestCost);
 			float savedBestCost = bestCost;
 			int step = 0;
 			int noImprovementCount = noImprovement_MAX;
@@ -35,7 +35,7 @@ namespace Agent
 				float bestCostSoFar = Mathf.Infinity;
 				
 				// Debug printing
-				Debug.Log("Best permutation = " + bestPermutation.toString() + " with cost = " + bestCost);
+//				Debug.Log("Best permutation = " + bestPermutation.toString() + " with cost = " + bestCost);
 				
 				foreach(Permutation neighbor in neighbors){
 					if(!tabuHashSet.Contains(neighbor)){

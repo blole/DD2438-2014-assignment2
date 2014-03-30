@@ -109,7 +109,23 @@ namespace Agent
 				}
 
 				// Compute best permutation
-				bestPermutation = TabuSearch.Search(nbGuard,nbPoint,costs);
+				int[] tmpBestPermutation = TabuSearch.Search(nbGuard,nbPoint,costs);
+				float bestCost = 0f;
+				for(int r = nbPoint; r < nbPoint+nbGuard ; r++){
+					bestCost += getPathLength(r,tmpBestPermutation,nbGuard,nbPoint);
+				}
+				for(int k=0;k<5;k++){
+					tmpBestPermutation = TabuSearch.Search(nbGuard,nbPoint,costs);
+					float tmpCost = 0f;
+					for(int r = nbPoint; r < nbPoint+nbGuard ; r++){
+						tmpCost += getPathLength(r,tmpBestPermutation,nbGuard,nbPoint);
+					}
+					if(tmpCost < bestCost){
+						bestCost = tmpCost;
+						bestPermutation = tmpBestPermutation;
+					}
+				}
+				
 				String msg = "Best Permutation = ";
 				for(int i=0;i<bestPermutation.Length;i++){
 					msg += bestPermutation[i] + ",";
