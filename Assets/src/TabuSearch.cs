@@ -79,11 +79,33 @@ namespace Agent
 			int n = permutation.arrayPerm.Length;
 			for (int i=0; i<n-1; i++) {
 				Permutation newPerm = new Permutation(permutation.arrayPerm);
+				int tmp = newPerm.arrayPerm[i];
 				newPerm.arrayPerm[i] = newPerm.arrayPerm[i+1];
 				newPerm.arrayPerm[i+1] = tmp;
 				if(isValid(newPerm))
 					swap1.Add (newPerm);
 			}
+			return swap1;
+		}
+
+		// Swap two next to each other element with the two next ones
+		static private List<Permutation> swap2(Permutation permutation, int nbGuard){
+			List<Permutation> swap2 = new List<Permutation> ();
+			int n = permutation.arrayPerm.Length;
+			for (int i=0; i<n-3; i++) {
+				Permutation newPerm = new Permutation(permutation.arrayPerm);
+				int t1 = newPerm.arrayPerm[i];
+				int t2 = newPerm.arrayPerm[i+1];
+				int t3 = newPerm.arrayPerm[i+2];
+				int t4 = newPerm.arrayPerm[i+3];
+				newPerm.arrayPerm[i] = t3;
+				newPerm.arrayPerm[i+1] = t4;
+				newPerm.arrayPerm[i+2] = t1;
+				newPerm.arrayPerm[i+3] = t2;
+				if(isValid(newPerm))
+					swap2.Add (newPerm);
+			}
+			return swap2;
 		}
 
 		static private bool isValid(Permutation permutation, int nbGuard){
