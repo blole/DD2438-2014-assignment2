@@ -52,7 +52,7 @@ namespace Agent
 		public static Vector3[] edges(this Collider collider)
 		{
 			Vector3[] edges;
-
+			
 			if (collider is BoxCollider)
 			{
 				BoxCollider box = collider as BoxCollider;
@@ -61,7 +61,7 @@ namespace Agent
 				edges[1] = box.size.scale( .5f, 0,  .5f);
 				edges[2] = box.size.scale( .5f, 0, -.5f);
 				edges[3] = box.size.scale(-.5f, 0, -.5f);
-
+				
 				for (int i=0; i<edges.Length; i++)
 					edges[i] = collider.transform.TransformPoint(box.center+edges[i]).scale(1,0,1);
 			}
@@ -76,10 +76,15 @@ namespace Agent
 			}
 			else
 				throw new NotImplementedException("Collider.edges() only works for boxes");
-
+			
 			return edges;
 		}
-
+		
+		public static Polygon polygon(this Collider collider)
+		{
+			return new Polygon(collider.edges().Select(v=>v.projectDown()).ToArray());
+		}
+		
 		public static Vector3[] outerEdges(this Collider collider, float radius)
 		{
 			BoxCollider box = collider as BoxCollider;
@@ -106,22 +111,7 @@ namespace Agent
 				yield return child;
 		}
 
-		public static IEnumerable<List<T>> Split<T>(this IEnumerable<T> elements, Func<T, bool> splitAt)
-		{
-			List<T> ts = new List<T>();
-			foreach (T element in elements)
-			{
-				if (splitAt(element))
-				{
-					yield return ts;
-					ts = new List<T>();
-				}
-				else
-					ts.Add(element);
-			}
-		}
-		
-		
+
 
 
 
@@ -155,7 +145,13 @@ namespace Agent
 		{
 			return new Vector2(Mathf.Sign(v.x), Mathf.Sign(v.y));
 		}
-		
+
+		public static bool almostEqual(this Vector2 v, Vector2 u)
+		{
+			return Mathf.Abs(v.x-u.x)<Vector2.kEpsilon &&
+				   Mathf.Abs(v.y-u.y)<Vector2.kEpsilon;
+		}
+
 		public static Vector2 sign(this Vector2 v, Vector2 up)
 		{
 			v = v.turn(-up.angle());

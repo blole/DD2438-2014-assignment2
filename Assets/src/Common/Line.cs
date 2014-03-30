@@ -12,6 +12,8 @@ namespace Agent
 		public readonly Vector2 a;
 		public readonly Vector2 b;
 
+		public Vector2 Center {get{return (a+b)/2; }}
+
 		public Line(Vector2 a, Vector2 b)
 		{
 			this.a = a;
@@ -28,18 +30,24 @@ namespace Agent
 		{
 			Vector2 s1 = b-a;
 			Vector2 s2 = l.b-l.a;
-
+			
 			float s = (-s1.y * (a.x - l.a.x) + s1.x * (a.y - l.a.y)) / (-s2.x * s1.y + s1.x * s2.y);
 			float t = ( s2.x * (a.y - l.a.y) - s2.y * (a.x - l.a.x)) / (-s2.x * s1.y + s1.x * s2.y);
 			
-			if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+			if (0-Vector2.kEpsilon <= s && s <= 1+Vector2.kEpsilon &&
+			    0-Vector2.kEpsilon <= t && t <= 1+Vector2.kEpsilon)
 				return a + s1*t;
 			else
 				return null;
 		}
-
+		
 		public bool isLeft(Vector2 point){
 			return ((b.x - a.x)*(point.y - a.y) - (b.y - a.y)*(point.x - a.x)) > 0;
+		}
+
+		public float angle()
+		{
+			return (b-a).angle();
 		}
 
 		override public string ToString()

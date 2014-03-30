@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using LibTessDotNet;
+using IntervalTreeLib;
 
 namespace Agent
 {
@@ -14,19 +15,48 @@ namespace Agent
 
 		public bool showPolygons;
 		public bool showGraph;
-//		public bool showSpanningTree;
+		public bool showRandomCut;
 
 		public Color polygonColor = Color.white;
 		public Color graphColor = Color.white;
-//		public Color treeColor = Color.white;
+		public Color cutColor = Color.white;
 
 		static public List<ConnectedPolygon> polygons = new List<ConnectedPolygon>();
+		static public Dictionary<Vector2, List<GraphCut>> graphCuts = new Dictionary<Vector2, List<GraphCut>>();
+
+		void Start()
+		{
+			updateAreas();
+			updateCuts();
+		}
 
 		#if UNITY_EDITOR
 		void Update ()
 		{
 			if (!Application.isPlaying)
+			{
 				updateAreas();
+				updateCuts();
+
+				if (showGraph)
+					drawGraph();
+				if (showPolygons)
+					drawPolygons();
+				if (showRandomCut)
+				{
+					while (true)
+					{
+						List<GraphCut> cuts = null;
+						Vector2 pos = graphCuts.Keys.ElementAt(UnityEngine.Random.Range(0, graphCuts.Keys.Count-1));
+						graphCuts.TryGetValue(pos, out cuts);
+						if (cuts != null)
+						{
+							drawCut(pos, cuts);
+							break;
+						}
+					}
+				}
+			}
 		}
 		#endif
 
@@ -66,137 +96,145 @@ namespace Agent
 					}
 				}
 			}
-
-//			//generate spanning tree
-//			List<ConnectedPolygon> tree = new List<ConnectedPolygon> ();
-//			List<ConnectedPolygon> remainingPolygon = new List<ConnectedPolygon> ();
-//			foreach(ConnectedPolygon poly in polygons){
-//				remainingPolygon.Add (poly);
-//			}
-//			tree.Add (remainingPolygon.ElementAt (0));
-//			remainingPolygon.RemoveAt (0);
-//			int DEBUG = 100;
-//			print ("Starting = " + remainingPolygon.Count);
-//			while(remainingPolygon.Count != 0 && (DEBUG--)>0){
-//				ConnectedPolygon bestPoly = new ConnectedPolygon();
-//				ConnectedPolygon bestNeighbor = new ConnectedPolygon();
-//				float bestWeight = Mathf.Infinity;
-//				foreach(ConnectedPolygon poly in tree){
-//					foreach(ConnectedPolygon neighbor in poly.neighbors){
-//						if(remainingPolygon.Contains(neighbor)){
-//							float tmpWeight = (poly.Center - neighbor.Center).magnitude;
-//							if(tmpWeight < bestWeight){
-//								bestPoly = poly;
-//								bestNeighbor = neighbor;
-//								bestWeight = tmpWeight;
-//							}
-//						}
-//					}	
-//				}
-//				for(int i=bestPoly.neighbors.Count-1;i>=0;i--){
-//					if(!(bestPoly.neighbors.ElementAt(i).Equals(bestNeighbor))){
-//						bestPoly.neighbors.RemoveAt(i);
-//					}
-//				}
-//
-//				tree.Add (bestPoly);
-//				remainingPolygon.Remove(bestPoly);
-//			}
-//			print ("Ending = " + remainingPolygon.Count);
-
-			Vector3 height = Vector3.up * 0.2f;
-//			if (showSpanningTree){
-//				foreach (ConnectedPolygon poly in tree)
-//				{
-//					foreach (ConnectedPolygon neighbor in poly.neighbors)
-//						Debug.DrawLine(poly.Center.toVector3()+height, neighbor.Center.toVector3()+height, treeColor);
-//					
-//					DebugHelper.DrawCircle(poly.Center.toVector3()+height, 0.2f, 16, treeColor);
-//				}
-//			}
-
-			if (showPolygons)
-			{
-				foreach (Polygon poly in polygons)
-				{
-					foreach (Line line in poly.lines())
-						Debug.DrawLine(line.a.toVector3()+height, line.b.toVector3()+height, polygonColor);
-				}
-			}
-			
-			if (showGraph)
-			{
-				foreach (ConnectedPolygon poly in polygons)
-				{
-					foreach (ConnectedPolygon neighbor in poly.neighbors)
-						Debug.DrawLine(poly.Center.toVector3()+height, neighbor.Center.toVector3()+height, graphColor);
-
-					DebugHelper.DrawCircle(poly.Center.toVector3()+height, 0.2f, 16, graphColor);
-				}
-			}
 		}
 
-		public class ConnectedPolygon : Polygon
+		void updateCuts()
 		{
-			public ConnectedPolygon(Vector2[] points)
-				: base(points)
-			{}
+			IEnumerable<Vector2> lookingPositions = Waypoints.waypoints.Select(w=>w.pos.projectDown());
 
-			public ConnectedPolygon() :base(null) 
-			{}
+			GameObject[] obstacles = GameObject.FindGameObjectsWithTag("obstacle").ToArray();
+			Polygon[] obstaclePolys = obstacles.Select(o=>o.collider.polygon()).ToArray();
 
-			public List<ConnectedPolygon> neighbors = new List<ConnectedPolygon> ();
-
-			public override bool Equals (object obj)
+			graphCuts.Clear();
+			foreach (Vector2 lookingPos in lookingPositions)
 			{
-				if (obj == null)
-					return false;
+				List<GraphCut> cuts = new List<GraphCut>();
+				graphCuts.Add(lookingPos, cuts);
 				
-				ConnectedPolygon poly = obj as ConnectedPolygon;
-				if (poly != null)
-					return Equals(poly);
-				
-				return false;
-			}
-			
-			public bool Equals(ConnectedPolygon poly)
-			{
-				bool result = true;
-				int i = -1;
-				foreach(Vector2 point in poly.points){
-					i++;
-					if(point != this.points[i]){
-						result = false;
-						break;
+				IntervalTree<int, float> tree = new IntervalTree<int, float>();
+
+				List<float> angles = new List<float>();
+				for (int i=0; i<obstacles.Length; i++)
+				{
+					Interval<int, float> angleRange = getAngleRange(lookingPos, obstacles[i].collider);
+					angleRange.Data = i;
+					tree.AddInterval(angleRange);
+					angles.Add(angleRange.Start);
+					angles.Add(angleRange.End);
+				}
+				angles.Sort();
+
+				for (int i=0; i<angles.Count; i++)
+				{
+					Line viewRay = new Line(lookingPos, lookingPos+Vector2.up.turn(angles[i])*1000);
+					Vector2? firstEntringHit = null;
+
+					List<int> hitObstacles = tree.Get(angles[i], StubMode.ContainsStartThenEnd);
+					for (int j=0; j<hitObstacles.Count; j++)
+					{
+						Vector2? entringHit = obstaclePolys[j].firstEntry(viewRay);
+						if (entringHit.HasValue)
+						{
+							if (!firstEntringHit.HasValue)
+								firstEntringHit = entringHit;
+							else if ((firstEntringHit.Value-lookingPos).sqrMagnitude > (entringHit.Value-lookingPos).sqrMagnitude)
+								firstEntringHit = entringHit;
+						}
+					}
+					Vector2 firstHit;
+					if (firstEntringHit.HasValue)
+						firstHit = firstEntringHit.Value;
+					else
+						firstHit = viewRay.b;
+
+
+					viewRay = new Line(lookingPos, firstHit+(firstHit-lookingPos)*0.01f);
+
+					foreach (ConnectedPolygon poly in polygons)
+					{
+						GraphCut cut = new GraphCut(poly);
+
+						Line[] lines = poly.lines().ToArray();
+						for (int j=0; j<lines.Length; j++)
+						{
+							if (lines[j].Intersects(viewRay).HasValue)
+								cut.edges.Add(j);
+						}
+
+						if (cut.edges.Count > 0)
+							cuts.Add(cut);
 					}
 				}
-				return result;
+			}
+		}
+		
+		private Vector2 firstIntersection(Vector2 origin, float angle, Line[] obstacleLines)
+		{
+			float minDistance = float.PositiveInfinity;
+			Vector2 firstIntersection = Vector2.zero;
+			Line ray = new Line(origin, origin+Vector2.up.turn(angle)*1000);
+			foreach (Line line in obstacleLines)
+			{
+				Vector2? intersection = ray.Intersects(line);
+				if (intersection.HasValue)
+				{
+					float distance = (intersection.Value-origin).sqrMagnitude;
+					if (minDistance > distance)
+					{
+						minDistance = distance;
+						firstIntersection = intersection.Value;
+					}
+				}
+			}
+
+			return firstIntersection;
+		}
+
+		private Interval<int, float> getAngleRange(Vector2 origin, Collider collider)
+		{
+			float min = float.PositiveInfinity;
+			float max = float.NegativeInfinity;
+
+			foreach (Vector2 edge in collider.edges())
+			{
+				float angle = (edge-origin).angle();
+				min = Math.Min(min, angle);
+				max = Math.Max(max, angle);
+			}
+
+			return new Interval<int, float>(min, max, 0);
+		}
+
+		void drawPolygons()
+		{
+			Vector3 height = transform.up * transform.position.y;
+			foreach (Polygon poly in polygons)
+			{
+				foreach (Line line in poly.lines())
+					Debug.DrawLine(line.a.toVector3()+height, line.b.toVector3()+height, polygonColor);
 			}
 		}
 
-		private Mesh newMesh(Polygon poly)
+		void drawGraph()
 		{
-			Tess tess = tesselateTriangles(poly);
-			return newMesh(tess.Vertices.toVector3(), tess.Elements);
+			Vector3 height = transform.up * transform.position.y;
+			foreach (ConnectedPolygon poly in polygons)
+			{
+				foreach (ConnectedPolygon neighbor in poly.neighbors)
+					Debug.DrawLine(poly.Center.toVector3()+height, neighbor.Center.toVector3()+height, graphColor);
+				
+				DebugHelper.DrawCircle(poly.Center.toVector3()+height, 0.2f, 16, graphColor);
+			}
 		}
 
-		private Tess tesselateTriangles(Polygon poly)
+		void drawCut(Vector2 pos, List<GraphCut> cuts)
 		{
-			Tess tess = new Tess();
-			tess.AddContour(poly.points.toContour());
-			tess.Tessellate(WindingRule.Positive, ElementType.Polygons, 3);
-
-			return tess;
-		}
-
-		private Mesh newMesh(Vector3[] vertices, int[] triangles)
-		{
-			Mesh mesh = new Mesh();
-			mesh.vertices = vertices;
-			mesh.uv = Enumerable.Repeat(Vector2.zero, vertices.Length).ToArray();
-			mesh.triangles = triangles;
-			mesh.RecalculateNormals();
-			return mesh;
+			DebugHelper.DrawCircle(pos.toVector3 ().setY (transform.position.y), 0.3f, 16, cutColor);
+			foreach (GraphCut cut in cuts)
+			{
+				foreach (Pair<Vector2> pair in cut.edges.Select(i=>cut.poly.lines()[i].Center).pairs())
+					DebugHelper.DrawLine(pair.a, pair.b, transform.position.y, cutColor);
+			}
 		}
 
 		Tess getFloorTess(int maxConvexPolygonSize)
@@ -210,6 +248,27 @@ namespace Agent
 			
 			tess.Tessellate(WindingRule.Positive, ElementType.Polygons, maxConvexPolygonSize);
 			return tess;
+		}
+
+		public class ConnectedPolygon : Polygon
+		{
+			public ConnectedPolygon(Vector2[] points)
+				: base(points)
+			{}
+			
+			public List<ConnectedPolygon> neighbors = new List<ConnectedPolygon> ();
+			
+		}
+
+		public class GraphCut
+		{
+			public readonly Polygon poly;
+			public List<int> edges = new List<int>();
+
+			public GraphCut(Polygon poly)
+			{
+				this.poly = poly;
+			}
 		}
 	}
 }
