@@ -12,11 +12,11 @@ if at least one guard can see the whole area.
 \begin{definition}[Secured]
 if all of it's neighbors are either secured or watched.
 \end{definition}
-\\
+
 Each guard only has one property:
 \begin{definition}[Occupied]
 if it is the only guard watching an area that is not secured itself, but connected to both secured and unsecured areas.
-\end{itemize}
+\end{definition}
 
 \begin{algorithm}
 This is an algorithm for finding the points for guards to visit in order to secure a given 2D vector environment divided into free-space and obstacles. Intruders are allowed to move arbitrarily fast.

@@ -4,15 +4,15 @@ In order to enhance the performance, we discretize our environment using a grid.
 The environment is then tesselated into convex areas, we use rectangles, $C_{1\leq i \leq n}$ each satisfying the following criteria.
 
 \begin{criteria}[of Visibility]
- \emph{For all point $P$ in the environment, if each corner of $C_i$ is visible, then $C_i$ is completely visible}. In practice, it means that checking if a area is completely visible from a given point can be done in only $4$ raycasts (because a rectangle has $4$ cornes).
+ \emph{For all point $P$ in the environment, if each corner of $C_i$ is visible, then $C_i$ is completely visible}. In practice, it means that checking if a area is completely visible from a given point can be done in only 4 raycasts (because a rectangle has 4 corners).
 \label{visibilityCriteria}
 \end{criteria}
 
-%The three problems we investigate involve finding interesting points on the map. We use the following terminology:
-%\begin{description}
-%	\item[Waypoints:] 
-%	\item[Points of surveillance:] All the points from which a specific area is completely visible.
-%\end{description}
+
+The three problems we investigate involve finding interesting points on the map. We use the following terminology:
+\begin{definition}[Points of surveillance:]
+All the points from which a specific area is completely visible.
+\end{definition}
 
 \subsection{Convex tesselation}
 
@@ -28,13 +28,6 @@ This algorithm describes how to create a convex tesselation of our environment. 
 \end{enumerate}
 \label{algoConvexTesselation}
 \end{algorithm}
-
-\begin{figure}[h!t]
-	\includegraphics[width=\linewidth]{fig/convexCover.eps}
-	\caption{Waypoints of the environment \& Convex tesselation ($R=3$)}
-	\label{convexTesselation}
-\end{figure}
-
 
 \subsection{Graph representation \& search}
 \begin{definition}[Waypoint]

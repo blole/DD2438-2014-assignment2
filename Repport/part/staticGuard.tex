@@ -1,10 +1,10 @@
-This problem is solved using the greedy algorithm \ref{algStaticGuard}, which generate a set of point $ S = P_{1\leq i \leq n}$ from which the environment is completely visible. Figure \ref{staticCoverSet} shows the set of points produced by the algorithm.
+This problem is solved using the greedy algorithm \ref{algStaticGuard}, which generate a set of point $ S = P_{1\leq i \leq n}$ from which the environment is completely visible. Figure \ref{convexTesselation} shows the set of points produced by the algorithm.
 
 \begin{algorithm}
 This algorithm gives a way to find a set of points from which the environment is completely visible.
 \begin{enumerate}
 	\item Generate a set of potential points (we used the center of every grid cell).
-	\item Create a set of unseen areas $U_i = C_i$ (see alg. \ref{algoConvexCover}).
+	\item Create a set of unseen areas $U_i = C_i$ (see alg. \ref{algoConvexTesselation}).
 	\item Find the point $p$ from which most of the area is visible.
 	\item Add this point to the set of point $S$.
 	\item Remove areas visible from $p$ from $U$.
@@ -16,8 +16,9 @@ This algorithm gives a way to find a set of points from which the environment is
 Even if there is no guarantee that algorithm \ref{algStaticGuard} will find the optimal solution, its low complexity ($\mathcal{O}(n)$ -- where $n$ is the size of the set) has been proven to be the best-possible polynomial time approximation algorithm for set cover (see \cite{approxMinProb}).
 
 \begin{figure}[h!t]
-	\centering
-	\includegraphics[height=0.5\linewidth]{fig/cat.eps}
-	\caption{Positions for static guarding}
-	\label{staticCoverSet}
+	\begin{center}
+	\includegraphics[width=\linewidth,natwidth=824,natheight=823]{fig/staticCoverSet.jpg}
+	\end{center}
+	\caption{Set cover \& Positions for static guarding}
+	\label{convexTesselation}
 \end{figure}
