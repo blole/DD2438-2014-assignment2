@@ -24,6 +24,15 @@ namespace Agent
 				{
 					return this.hashCode;
 				}
+		
+				public String toString(){
+					String msg = "{";
+					for(int i=0;i<arrayPerm.Length-1;i++){
+					msg += arrayPerm[i] + ",";
+					}
+					msg += arrayPerm[arrayPerm.Length-1]+"}";
+					return msg;
+				}
 		}
 }
 

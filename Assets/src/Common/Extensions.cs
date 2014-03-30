@@ -106,7 +106,22 @@ namespace Agent
 				yield return child;
 		}
 
-
+		public static IEnumerable<List<T>> Split<T>(this IEnumerable<T> elements, Func<T, bool> splitAt)
+		{
+			List<T> ts = new List<T>();
+			foreach (T element in elements)
+			{
+				if (splitAt(element))
+				{
+					yield return ts;
+					ts = new List<T>();
+				}
+				else
+					ts.Add(element);
+			}
+		}
+		
+		
 
 
 

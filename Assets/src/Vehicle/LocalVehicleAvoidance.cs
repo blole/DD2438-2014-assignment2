@@ -18,7 +18,7 @@ namespace Agent
 		void Update () {
 			Vector3 velocity = Vector3.zero;
 			
-			foreach (Vehicle vehicle in FindObjectsOfType<Vehicle>())
+			foreach (Vehicle vehicle in FindObjectsOfType(typeof(Vehicle)))
 			{
 				if (vehicle.gameObject == gameObject)
 					continue;
