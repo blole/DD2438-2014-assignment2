@@ -31,6 +31,16 @@ namespace Agent
 			}
 		}
 
+		public Vector2? firstEntry(Line l)
+		{
+			var intersections = Intersects(l).OrderBy(p=>(l.a-p).sqrMagnitude);
+
+			if (intersections.Count() >= 2 && !intersections.First().almostEqual(intersections.Last()))
+				return intersections.First();
+			else
+				return null;
+		}
+
 		public bool contains(Vector2 point)
 		{
 			return lines().All(line=>!line.isLeft(point));
@@ -53,10 +63,16 @@ namespace Agent
 			return true;
 		}*/
 
-		public IEnumerable<Line> lines()
+		List<Line> linesCache = null;
+		public List<Line> lines()
 		{
-			for (int i=0; i<points.Length; i++)
-				yield return new Line(points[i], points[(i+1)%points.Length]);
+			if (linesCache == null)
+			{
+				linesCache = new List<Line>();
+				for (int i=0; i<points.Length; i++)
+					linesCache.Add(new Line(points[i], points[(i+1)%points.Length]));
+			}
+			return linesCache;
 		}
 	}
 }
