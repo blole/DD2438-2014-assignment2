@@ -1,4 +1,4 @@
-This problem is solved using the set of point $S$ produced by the algorithm \ref{algStaticGuard}. Based on the knowledge of this points, clearing the whole area can be done easily. It is enough to have each guard visiting once each of this points to guarantee that there is no static intruder (since the whole area will be seen). 
+This problem is solved using the set of point $S$ produced by the algorithm \ref{algStaticGuard}. Based on the knowledge of this points, clearing the whole area can be done easily. It is enough to have each guard visiting once each of this points to guarantee that there is no static intruder (since the whole area will be seen). Figure \ref{dynamicPath} shows the paths for 2 vehicles cleaning an area.
 
 This problem and its solution are the following:
 
@@ -25,6 +25,14 @@ This algorithm gives a way to find the smallest path for a set of $n_{G}$ vehicl
 \end{enumerate}
 \label{dynamicGuard}
 \end{algorithm}
+
+\begin{figure}[h!t]
+	\begin{center}
+	\includegraphics[width=\linewidth,natwidth=824,natheight=823]{fig/dynamicPath.jpg}
+	\end{center}
+	\caption{Path for $2$ vehicles looking for a static intruder}
+	\label{dynamicPath}
+\end{figure}
 
 \subsection{Permutation}
 
