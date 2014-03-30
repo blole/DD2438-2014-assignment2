@@ -74,11 +74,11 @@
  %\setcounter{section}{3}
  \usepackage[explicit]{titlesec}
   %\titleformat{<command>}[<shape>]{<format>}{<label>}{<sep>}{<before>}[<after>]
-	\titleformat{\section}[block]{\Large\bfseries\filcenter}{\arabic{section}.}{1em}{#1}
+	\titleformat{\section}[block]{\normalsize\bfseries\filcenter}{\Roman{section}.}{1em}{#1}
+	\titleformat{\subsection}[block]{\normalsize\bfseries}{\emph{\Alph{subsection}.}}{1em}{\emph{#1}}
  %\titleformat{\section}[hang]{\normalfont\Large\bfseries}%
      %{}{8pt}%
      %{\arabic{section}. #1}
-
 
 
 %---------------------------------------------
@@ -92,13 +92,6 @@
 \usepackage{url}
 
 %---------------------------------------------
-% Enumeration spacing
-%---------------------------------------------
-\usepackage{enumitem}
-\setlist[enumerate]{itemsep=0mm}
-\setlist[description]{itemsep=0mm}
-
-%---------------------------------------------
 % Algorithm form
 %---------------------------------------------
 \newtheorem{algorithm}{Algorithm}[section]
@@ -106,21 +99,24 @@
 \newtheorem{problem}{Problem}
 \newtheorem{subproblem}{Problem}[section]
 \newtheorem{definition}{Definition}[section]
-    
+\newcommand{\qed}{\hfill $\blacksquare$}
+
 \begin{document}
 
 % % Indentation size
 % \setlength\parindent{0em}
+% 
+% \setlength{\itemsep}{0pt}
 
 \maketitle
 
-\tableofcontents
+% \tableofcontents
+
+
+\input{part/abstract}
 
 \vspace{0.5cm}
 \hrule
-\vspace{0.5cm}
-
-\input{part/abstract}
 
 \section{The three problems}
 \input{part/threeProb}
