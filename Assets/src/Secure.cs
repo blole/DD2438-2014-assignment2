@@ -13,6 +13,8 @@ namespace Agent
 		public bool showDynamicGuarding;
 
 		public bool initialization = false;
+		
+		public bool initWithTabu = false;
 
 		private static int[] bestPermutation;
 		private float[,] costs;
@@ -29,9 +31,9 @@ namespace Agent
 		{
 //			print ("----------------- RECOMPUTING! --------------------");
 			if (!Application.isPlaying){
-				int nbGuard = GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount;
+				int nbGuard = ((PoliceSpawner)FindObjectOfType(typeof(PoliceSpawner))).PoliceCount;
 				if(nbGuard > 0){
-					computeGuardPath(GameObject.FindObjectOfType<PoliceSpawner>().PoliceCount);
+					computeGuardPath(nbGuard);
 				}
 			}
 		}
@@ -42,11 +44,11 @@ namespace Agent
 			int nbPoint = Areas.setOfPointCoveringArea.Count ();
 			if(nbPoint == 0)
 				return;
-			print ("nbPoint = " + nbPoint + " nbGuard = " + nbGuard);
+//			print ("nbPoint = " + nbPoint + " nbGuard = " + nbGuard);
 
 			if(initialization){
 				initialization = false;
-				Permutation permutationGenerator = new Permutation (nbGuard + nbPoint);
+				PermutationGenerator permutationGenerator = new PermutationGenerator (nbGuard + nbPoint);
 
 				// Create a matrix with all cost
 				costs = new float[nbGuard+nbPoint,nbGuard+nbPoint];
@@ -89,8 +91,57 @@ namespace Agent
 				}
 				print (msg + "with length " + bestLength);
 			}
+			
+			if(initWithTabu){
+				initWithTabu = false;
+
+				// Create a matrix with all cost
+				costs = new float[nbGuard+nbPoint,nbGuard+nbPoint];
+				GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
+
+				for(int i=0;i<nbGuard+nbPoint;i++){
+					for(int j=0;j<nbGuard+nbPoint;j++){
+						Vector3 start = (i<nbPoint) ? Areas.setOfPointCoveringArea.ElementAt(i) : guards[i-nbPoint].transform.position;
+						Vector3 end = (j < nbPoint) ? Areas.setOfPointCoveringArea.ElementAt(j) : guards[j-nbPoint].transform.position;
+						PathFinderAStar.Path path = PathFinderAStar.find (start,end);
+						costs[i,j] = path.lengthPath;
+					}
+				}
+
+				// Compute best permutation
+				int[] tmpBestPermutation = TabuSearch.Search(nbGuard,nbPoint,costs);
+				float bestCost = 0f;
+				for(int r = nbPoint; r < nbPoint+nbGuard ; r++){
+					bestCost += getPathLength(r,tmpBestPermutation,nbGuard,nbPoint);
+				}
+				for(int k=0;k<5;k++){
+					tmpBestPermutation = TabuSearch.Search(nbGuard,nbPoint,costs);
+					float tmpCost = 0f;
+					for(int r = nbPoint; r < nbPoint+nbGuard ; r++){
+						tmpCost += getPathLength(r,tmpBestPermutation,nbGuard,nbPoint);
+					}
+					if(tmpCost < bestCost){
+						bestCost = tmpCost;
+						bestPermutation = tmpBestPermutation;
+					}
+				}
+				
+				String msg = "Best Permutation = ";
+				for(int i=0;i<bestPermutation.Length;i++){
+					msg += bestPermutation[i] + ",";
+				}
+				
+				float length = 0f;
+				for(int r = nbPoint; r < nbPoint+nbGuard ; r++){
+					length += getPathLength(r,bestPermutation,nbGuard,nbPoint);
+				}
+				
+				print (msg + " with length " + length);
+			}
+			
+			
 			if(showDynamicGuarding){
-				print ("Displaying...");
+//				print ("Displaying...");
 				displayDynamicGuarding(bestPermutation,nbPoint,nbGuard);
 			}
 
@@ -114,7 +165,7 @@ namespace Agent
 			if(!indexPath.Any()){
 				return 0f;
 			}
-			GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
+//			GameObject[] guards = GameObject.FindGameObjectsWithTag ("police");
 			float pathLength = costs [indexGuard, indexPath.ElementAt (0)];
 
 
@@ -126,7 +177,7 @@ namespace Agent
 
 		void displayDynamicGuarding(int[] permutation,int nbPoint,int nbGuard){
 			for(int r=nbPoint;r<nbPoint+nbGuard;r++){
-				print ("Displaying path for robot " + (r-nbPoint));
+//				print ("Displaying path for robot " + (r-nbPoint));
 				displayGuardPath(r, permutation, nbGuard, nbPoint);
 			}
 		}
@@ -170,7 +221,7 @@ namespace Agent
 		}
 
 		public static List<int> getIndexPointToVisit(int indexGuard){
-			int nbGuard = GameObject.FindObjectOfType<PoliceSpawner> ().policeCount;
+			int nbGuard = ((PoliceSpawner)FindObjectOfType(typeof(PoliceSpawner))).policeCount;
 			int nbPoint = bestPermutation.Length - nbGuard;
 			indexGuard += nbPoint;
 			int indexGuardInPermutation = 0; 

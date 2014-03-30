@@ -2,19 +2,20 @@ We only have an idea for an algorithm for solving this problem, it is not yet te
 
 The algorithm is based on ref\{one of P. Ögren's papers\} and the basic idea is to first place robots to break the problem down into smaller problems until a single robot can completely secure the smaller problem.
 Once an area has been secured, it should never be allowed to be directly connected to unsecured areas again.
-After securing, again try to break down the remaining problem into smaller problems and recurse.
+After securing, again try to break down the remaining problem into smaller problems and recurse.\\
 
-\subsection{Definitions}
 Each area has two different boolean properties:
-\begin{itemize}
-	\item Watched: if at least one robot can see the whole area.
-	\item Secured: if all of it's neighbors are either secured or watched.
-\end{itemize}
+\begin{definition}[Watched]
+if at least one robot can see the whole area.
+\end{definition}
+\begin{definition}[Secured]
+if all of it's neighbors are either secured or watched.
+\end{definition}
 
 Each robot only has one property:
-\begin{itemize}
-	\item Occupied: if it is the only robot watching an area that is not secured itself, but connected to both secured and unsecured areas.
-\end{itemize}
+\begin{definition}[Occupied]
+if it is the only robot watching an area that is not secured itself, but connected to both secured and unsecured areas.
+\end{definition}
 
 \begin{algorithm}
 This is an algorithm for finding the points for robots to visit in order to secure a given 2D vector environment divided into free-space and obstacles. Intruders are allowed to move arbitrarily fast.
