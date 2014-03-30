@@ -14,9 +14,11 @@ namespace Agent
 
 		public bool showPolygons;
 		public bool showGraph;
+//		public bool showSpanningTree;
 
 		public Color polygonColor = Color.white;
 		public Color graphColor = Color.white;
+//		public Color treeColor = Color.white;
 
 		static public List<ConnectedPolygon> polygons = new List<ConnectedPolygon>();
 
@@ -65,7 +67,54 @@ namespace Agent
 				}
 			}
 
-			Vector3 height = Vector3.up * transform.position.y;
+//			//generate spanning tree
+//			List<ConnectedPolygon> tree = new List<ConnectedPolygon> ();
+//			List<ConnectedPolygon> remainingPolygon = new List<ConnectedPolygon> ();
+//			foreach(ConnectedPolygon poly in polygons){
+//				remainingPolygon.Add (poly);
+//			}
+//			tree.Add (remainingPolygon.ElementAt (0));
+//			remainingPolygon.RemoveAt (0);
+//			int DEBUG = 100;
+//			print ("Starting = " + remainingPolygon.Count);
+//			while(remainingPolygon.Count != 0 && (DEBUG--)>0){
+//				ConnectedPolygon bestPoly = new ConnectedPolygon();
+//				ConnectedPolygon bestNeighbor = new ConnectedPolygon();
+//				float bestWeight = Mathf.Infinity;
+//				foreach(ConnectedPolygon poly in tree){
+//					foreach(ConnectedPolygon neighbor in poly.neighbors){
+//						if(remainingPolygon.Contains(neighbor)){
+//							float tmpWeight = (poly.Center - neighbor.Center).magnitude;
+//							if(tmpWeight < bestWeight){
+//								bestPoly = poly;
+//								bestNeighbor = neighbor;
+//								bestWeight = tmpWeight;
+//							}
+//						}
+//					}	
+//				}
+//				for(int i=bestPoly.neighbors.Count-1;i>=0;i--){
+//					if(!(bestPoly.neighbors.ElementAt(i).Equals(bestNeighbor))){
+//						bestPoly.neighbors.RemoveAt(i);
+//					}
+//				}
+//
+//				tree.Add (bestPoly);
+//				remainingPolygon.Remove(bestPoly);
+//			}
+//			print ("Ending = " + remainingPolygon.Count);
+
+			Vector3 height = Vector3.up * 0.2f;
+//			if (showSpanningTree){
+//				foreach (ConnectedPolygon poly in tree)
+//				{
+//					foreach (ConnectedPolygon neighbor in poly.neighbors)
+//						Debug.DrawLine(poly.Center.toVector3()+height, neighbor.Center.toVector3()+height, treeColor);
+//					
+//					DebugHelper.DrawCircle(poly.Center.toVector3()+height, 0.2f, 16, treeColor);
+//				}
+//			}
+
 			if (showPolygons)
 			{
 				foreach (Polygon poly in polygons)
@@ -82,7 +131,7 @@ namespace Agent
 					foreach (ConnectedPolygon neighbor in poly.neighbors)
 						Debug.DrawLine(poly.Center.toVector3()+height, neighbor.Center.toVector3()+height, graphColor);
 
-					DebugHelper.DrawCircle(poly.Center.toVector3()+height, 0.1f, 16, graphColor);
+					DebugHelper.DrawCircle(poly.Center.toVector3()+height, 0.2f, 16, graphColor);
 				}
 			}
 		}
@@ -93,7 +142,36 @@ namespace Agent
 				: base(points)
 			{}
 
+			public ConnectedPolygon() :base(null) 
+			{}
+
 			public List<ConnectedPolygon> neighbors = new List<ConnectedPolygon> ();
+
+			public override bool Equals (object obj)
+			{
+				if (obj == null)
+					return false;
+				
+				ConnectedPolygon poly = obj as ConnectedPolygon;
+				if (poly != null)
+					return Equals(poly);
+				
+				return false;
+			}
+			
+			public bool Equals(ConnectedPolygon poly)
+			{
+				bool result = true;
+				int i = -1;
+				foreach(Vector2 point in poly.points){
+					i++;
+					if(point != this.points[i]){
+						result = false;
+						break;
+					}
+				}
+				return result;
+			}
 		}
 
 		private Mesh newMesh(Polygon poly)

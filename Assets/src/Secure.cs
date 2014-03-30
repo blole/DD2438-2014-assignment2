@@ -56,10 +56,11 @@ namespace Agent
 					for(int j=0;j<nbGuard+nbPoint;j++){
 						Vector3 start = (i<nbPoint) ? Areas.setOfPointCoveringArea.ElementAt(i) : guards[i-nbPoint].transform.position;
 						Vector3 end = (j < nbPoint) ? Areas.setOfPointCoveringArea.ElementAt(j) : guards[j-nbPoint].transform.position;
-						print (start);
-						print (end);
-						print (PathFinderAStar.find(start,end).lengthPath);
-						costs[i,j] = PathFinderAStar.find(start,end).lengthPath;
+						PathFinderAStar.Path path = PathFinderAStar.find (start,end);
+//						if(path==null)
+//							costs[i,j] = Mathf.Infinity;
+//						else
+							costs[i,j] = path.lengthPath;
 					}
 				}
 
