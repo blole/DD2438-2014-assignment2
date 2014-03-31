@@ -35,3 +35,11 @@ This algorithm describes how to create a convex tesselation of our environment. 
 Point at a given distance from an obstacle's corner (see Figure \ref{waypointNavigation}).
 \end{definition}
 For guard navigation in the environment, we perform an A*-search on the connectivity graph between the waypoints, also including the starting position and the goal position.
+
+\begin{figure}[h!t]
+	\begin{center}
+	\includegraphics[width=119px]{fig/waypointnavigation.png}
+	\end{center}
+	\caption{The waypoints and their neighbor graph used for guard navigation.}
+	\label{waypointNavigation}
+\end{figure}
