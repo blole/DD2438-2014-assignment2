@@ -20,7 +20,7 @@ In order to solve our three problems, we need a convex tesselation of our enviro
 
 \begin{algorithm}
 This algorithm describes how to create a convex tesselation of our environment. Since the obstacles are all orthogonal, we construct our convex tesselation as rectangles aligned with the polygons.
-\begin{enumerate}
+\begin{enumerate}[topsep=1pt,itemsep=0ex,partopsep=1ex,parsep=1ex]
 \item Based on the grid, make a discretization of the environment $G(A)$.
 \item Find a yet uncovered cell, $p$.
 \item Start growing a rectange $C_i$ from $p$ until its length and width reach $R$\footnote{R is the maximum convex size in width and/or length. This parameter is used to guarantee the visibily criteria \ref{visibilityCriteria}}.

@@ -109,8 +109,9 @@ namespace Agent
 				}
 
 				// Compute best permutation
-				int[] tmpBestPermutation = TabuSearch.Search(nbGuard,nbPoint,costs);
+				bestPermutation =  TabuSearch.Search(nbGuard,nbPoint,costs);
 				float bestCost = 0f;
+				int[] tmpBestPermutation = bestPermutation;
 				for(int r = nbPoint; r < nbPoint+nbGuard ; r++){
 					bestCost += getPathLength(r,tmpBestPermutation,nbGuard,nbPoint);
 				}
