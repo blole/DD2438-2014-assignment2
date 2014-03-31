@@ -114,7 +114,7 @@ namespace Agent
 				for(int r = nbPoint; r < nbPoint+nbGuard ; r++){
 					bestCost += getPathLength(r,tmpBestPermutation,nbGuard,nbPoint);
 				}
-				for(int k=0;k<5;k++){
+				for(int k=0;k<3;k++){
 					tmpBestPermutation = TabuSearch.Search(nbGuard,nbPoint,costs);
 					float tmpCost = 0f;
 					for(int r = nbPoint; r < nbPoint+nbGuard ; r++){
