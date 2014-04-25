@@ -22,10 +22,11 @@ if it is the only guard watching an area that is not secured itself, but connect
 This is an algorithm for finding the points for guards to visit in order to secure a given 2D vector environment divided into free-space and obstacles. Intruders are allowed to move arbitrarily fast.
 
 The algorithm is greedy, but corresponding versions of searching for and evaluating different solutions could also be made.
-\begin{enumerate}
+\begin{enumerate}[topsep=1pt,itemsep=0ex,partopsep=1ex,parsep=1ex]
 	\item Tesselate the environment into convex polygons and generate a walkability-graph of the connected polygons. (see Figure \ref{searchDestroy})
-	\item Somehow find a point $p$ which divides the graph into smaller graphs. (see Figure \ref{searchDestroy2})
-			Preferably, at least one of the smaller graphs should be of a size smaller than the number of currently available unoccupied guards.
+	\item If it is possible to secure a part of the walkability graph with the number of currently available unoccupied guards, then do so.
+	\item Otherwise, somehow find a point $p$ which divides the walkability-graph into smaller parts. (see Figure \ref{searchDestroy2})
+			Preferably, at least one of the parts should be possible to secure when considered separately using fewer than the number of currently available unoccupied guards.
 	\item Move an unoccupied guard to $p$, if all guards are occupied, add a new guard at $p$.
 	\item If all the areas are either secured or watched, we are done, otherwise, goto 2.
 \end{enumerate}

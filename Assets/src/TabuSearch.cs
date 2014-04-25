@@ -8,8 +8,8 @@ namespace Agent
 {
 	public static class TabuSearch
 	{
-		private static int STEP_MAX = 10000;
-		private static int TABU_LIST_SIZE = 1000;
+		private static int STEP_MAX = 5000;
+		private static int TABU_LIST_SIZE = 500;
 		private static int noImprovement_MAX = 10;
 		private static HashSet<Permutation> tabuHashSet = new HashSet<Permutation>();
 		private static LinkedList<Permutation> tabuLinkedList = new LinkedList<Permutation>();

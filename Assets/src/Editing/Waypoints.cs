@@ -15,7 +15,6 @@ namespace Agent
 		public static float radius {get{return singleton==null?0:singleton.vehicleRadius; }}
 		public static List<Waypoint> waypoints = new List<Waypoint>();
 		public static Dictionary<Waypoint, List<Waypoint>> neighbors = new Dictionary<Waypoint, List<Waypoint>>();
-		private Vector3 offset = Vector3.up * 0.01f;
 
 		public Color waypointColor;
 		public Color neighborColor;
@@ -49,7 +48,8 @@ namespace Agent
 			neighbors.Clear();
 
 			foreach (GameObject go in GameObject.FindGameObjectsWithTag("obstacle"))
-				waypoints.AddRange(go.transform.GetComponent<Collider>().outerEdges(radius*1.01f).Select(v=>new Waypoint(v, waypoints.Count)));
+				waypoints.AddRange(go.transform.GetComponent<Collider>().outerEdges(radius*1.01f)
+				                   .Where(v=>PhysicsHelper.isClear(v, radius)).Select(v=>new Waypoint(v, waypoints.Count)));
 
 			foreach (Waypoint v in waypoints)
 			{
@@ -71,7 +71,7 @@ namespace Agent
 			if (show)
 			{
 				foreach (Waypoint waypoint in waypoints)
-					DebugHelper.DrawCircle(waypoint.pos+offset, radius, 16, waypointColor);
+					DebugHelper.DrawCircle(waypoint.pos+Vector3.up*transform.position.y, radius, 16, waypointColor);
 			}
 		}
 		void drawNeighbors(bool show)
@@ -82,7 +82,7 @@ namespace Agent
 				{
 					Waypoint w = pair.Key;
 					foreach (Waypoint u in pair.Value)
-						Debug.DrawLine(w.pos+offset, u.pos+offset, neighborColor);
+						Debug.DrawLine(w.pos+Vector3.up*transform.position.y, u.pos+Vector3.up*transform.position.y, neighborColor);
 				}
 			}
 		}

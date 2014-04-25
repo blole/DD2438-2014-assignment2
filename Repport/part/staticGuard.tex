@@ -2,7 +2,7 @@ This problem is solved using the greedy algorithm \ref{algStaticGuard}, which ge
 
 \begin{algorithm}
 This algorithm gives a way to find a set of points from which the environment is completely visible.
-\begin{enumerate}
+\begin{enumerate}[topsep=1pt,itemsep=0ex,partopsep=1ex,parsep=1ex]
 	\item Generate a set of potential points (we used the center of every grid cell).
 	\item Create a set of unseen areas $U_i = C_i$ (see alg. \ref{algoConvexTesselation}).
 	\item Find the point $p$ from which most of the area is visible.
@@ -18,7 +18,7 @@ Even if there is no guarantee that algorithm \ref{algStaticGuard} will find the 
 
 \begin{figure}[h!t]
 	\begin{center}
-	\includegraphics[width=\linewidth,natwidth=824,natheight=823]{fig/staticCoverSet.jpg}
+	\includegraphics[width=150px]{fig/staticCoverSet.jpg}
 	\end{center}
 	\caption{Convex tesselation \& Positions for static guarding}
 	\label{convexTesselation}
